@@ -41,11 +41,17 @@ async function newPage(viewport = { width: 1366, height: 900 }) {
 
 before(async () => {
   mkdirSync(SHOTS, { recursive: true });
-  server = spawn("npx", ["next", "start", "-p", String(PORT)], { stdio: "ignore", env: process.env });
+  try { await fetch(`${BASE}/connexion`); throw new Error(`Le port ${PORT} est déjà occupé : arrêtez l'ancien serveur.`); }
+  catch (e) { if ((e as Error).message.includes("déjà occupé")) throw e; }
+  // Groupe de processus dédié : on arrête le serveur ET ses processus enfants à la fin.
+  server = spawn("node_modules/.bin/next", ["start", "-p", String(PORT)], { stdio: "ignore", env: process.env, detached: true });
   await waitForServer();
   browser = await chromium.launch();
 });
-after(async () => { await browser?.close(); server?.kill(); });
+after(async () => {
+  await browser?.close();
+  if (server?.pid) try { process.kill(-server.pid, "SIGTERM"); } catch {}
+});
 
 const ROLE = `Rôle E2E ${run}`;
 const USER = `agent.e2e${run}`;
