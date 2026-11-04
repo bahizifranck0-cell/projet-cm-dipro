@@ -126,8 +126,8 @@ test("Phase 5 — secrétariat et réception", async (t) => {
     const item = recep.getByRole("listitem").filter({ hasText: LAST });
     await item.getByRole("button", { name: /^Orienter/ }).click();
     const dlg = recep.getByRole("dialog", { name: /Orienter/ });
-    await dlg.getByLabel("Service").selectOption({ label: depName });
-    await dlg.getByLabel("Médecin").selectOption({ label: `Dr ${people.doc.name} Moise` });
+    await dlg.locator("select[name=departmentId]").selectOption({ label: depName });
+    await dlg.locator("select[name=doctorId]").selectOption({ label: `Dr ${people.doc.name} Moise` });
     await dlg.getByRole("button", { name: "Orienter" }).click();
     await recep.getByRole("status").filter({ hasText: "Orientation enregistrée." }).waitFor();
     await recep.reload();
