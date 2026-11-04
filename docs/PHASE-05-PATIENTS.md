@@ -30,6 +30,8 @@ Migration `20261104000200_patients_search` (ajouts uniquement, avec `down.sql`) 
 - `Visit.priority` et `Visit.cancelReason` ;
 - règle « un seul passage ouvert par patient ».
 
+**Testée sur une base contenant déjà des données** (base de test de la Phase 2) : 10 patients et toutes les lignes d'audit conservés, champs de recherche remplis pour tous les dossiers existants, protections toujours actives (11/11).
+
 Note technique : l'index trigramme n'est pas décrit par Prisma. Les migrations doivent donc toujours être créées avec `prisma migrate diff` et relues, jamais avec `prisma migrate dev` sans vérification (qui proposerait de supprimer cet index).
 
 ## 3. Tests exécutés

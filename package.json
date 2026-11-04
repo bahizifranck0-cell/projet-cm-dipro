@@ -13,7 +13,7 @@
     "db:generate": "prisma generate",
     "db:seed": "tsx scripts/seed.ts",
     "admin:create": "tsx scripts/create-super-admin.ts",
-    "test:db": "node --test tests/db/*.test.mjs",
+    "test:db": "prisma migrate deploy && node --test tests/db/*.test.mjs",
     "test": "node --import tsx --test --test-concurrency=1 tests/unit/*.test.ts tests/services/*.test.ts",
     "test:e2e": "./scripts/e2e.sh"
   },
