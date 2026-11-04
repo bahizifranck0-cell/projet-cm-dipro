@@ -71,11 +71,12 @@ Tests navigateur de la Phase 5 :
 ## 4. Défauts trouvés et corrigés
 
 1. **Aucune confirmation après « Enregistrer l'arrivée »** : le bouton disparaissait avec son message dès que le passage était créé → la page du dossier affiche désormais la confirmation avec un lien vers la file.
-2. Test : le numéro de dossier apparaît deux fois sur la page → sélecteur précisé.
+2. **Aucune confirmation après l'annulation d'un passage**, pour la même raison (l'élément quitte la file). Corrigé à la racine : la notification de réussite part maintenant dès la réponse du serveur, pour **tous** les formulaires du logiciel, même si le formulaire disparaît ensuite.
+3. Tests : sélecteurs ambigus (numéro affiché deux fois ; « Médecin » contenu dans « Médecine générale ») → sélecteurs précis.
 
 ## 5. Résultat final des tests navigateur
 
-RESULTAT_FINAL
+**102/102** vérifications réussies dans un vrai navigateur (Phases 3, 4 et 5 ensemble), aucune erreur de console, aucun serveur de test resté actif. Unitaires et services : **41/41**. Protections de la base : **11/11**.
 
 ## 6. Points restant à confirmer
 
