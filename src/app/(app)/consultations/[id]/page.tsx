@@ -15,6 +15,8 @@ import { fmtDateTime } from "@/lib/labels";
 import { can } from "@/server/auth/actor";
 import { availableBeds } from "@/server/services/beds";
 import { AdmitButton } from "@/components/medical/hospital-forms";
+import { LabRequestForm } from "@/components/medical/lab-forms";
+import { LAB_STATUS, listLabTests } from "@/server/services/laboratory";
 
 export const metadata = { title: "Consultation" };
 
@@ -29,6 +31,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const docs = await db.document.findMany({ where: { entityType: "Prescription", entityId: { in: c.prescriptions.map((p) => p.id) } } });
   const opts = editable ? await orientationOptions() : null;
   const specs = editable ? (await listSpecialties(true)).map((s) => ({ id: s.id, name: s.name })) : [];
+  const [labRequests, labTests] = await Promise.all([
+    db.labRequest.findMany({ where: { consultationId: c.id }, orderBy: { requestedAt: "desc" }, include: { items: { include: { labTest: true } } } }),
+    can(actor, "laboratory", "create") && c.doctorId === actor.employeeId ? listLabTests(true) : Promise.resolve([]),
+  ]);
   const admitted = await db.admission.findFirst({ where: { patientId: c.patientId, status: "ACTIVE" } });
   const beds = editable && can(actor, "hospitalization", "create") && !admitted ? await availableBeds() : null;
 
@@ -75,6 +81,18 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           </li>);
         })}</ul>
         {editable && <PrescriptionForm id={c.id} />}
+      </Card>
+
+      <Card>
+        <h2 className="mb-3 text-lg font-semibold">Examens de laboratoire</h2>
+        {labRequests.length > 0 && <ul className="mb-4 space-y-2">{labRequests.map((r) => (
+          <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/15 p-3 text-sm">
+            <span><strong>{r.number}</strong> — {r.items.map((i) => i.labTest.name).join(", ")}</span>
+            <span className="flex items-center gap-2"><Badge tone={r.status === "VALIDATED" ? "green" : r.status === "CANCELLED" ? "red" : "amber"}>{LAB_STATUS[r.status]}</Badge><Link href={`/laboratoire/${r.id}`} className="font-semibold text-brand-300 hover:underline">{r.status === "VALIDATED" ? "Voir les résultats" : "Suivre"}</Link></span>
+          </li>))}</ul>}
+        {c.doctorId === actor.employeeId && can(actor, "laboratory", "create") && c.status !== "CANCELLED"
+          ? <LabRequestForm consultationId={c.id} tests={labTests.map((t) => ({ id: t.id, name: t.name, category: t.category, priced: !!t.tariffItemId }))} />
+          : labRequests.length === 0 && <p className="text-sm text-muted">Aucun examen demandé.</p>}
       </Card>
 
       {(editable || c.referrals.length > 0) && (

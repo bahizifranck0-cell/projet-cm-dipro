@@ -12,6 +12,8 @@ export function navFor(actor: Actor): NavItem[] {
     { href: "/patients", label: "Patients", icon: "Contact", section: "main", show: can(actor, "patients", "view") },
     { href: "/medecin", label: "Espace médecin", short: "Médecin", icon: "Stethoscope", section: "main", show: can(actor, "consultations", "create") },
     { href: "/hospitalisation", label: "Urgences et hospitalisation", short: "Hospit.", icon: "BedDouble", section: "main", show: can(actor, "hospitalization", "view") },
+    { href: "/laboratoire", label: "Laboratoire", short: "Labo", icon: "FlaskConical", section: "main", show: can(actor, "laboratory", "view") },
+    { href: "/pharmacie", label: "Pharmacie", icon: "Pill", section: "main", show: can(actor, "pharmacy", "view") || can(actor, "hospitalization", "update") },
     { href: "/rendez-vous", label: "Rendez-vous", icon: "CalendarDays", section: "main", show: can(actor, "appointments", "view") },
     { href: "/personnel", label: "Personnel", icon: "IdCard", section: "main", show: can(actor, "hr", "view") },
     { href: "/utilisateurs", label: "Utilisateurs", icon: "Users", section: "admin", show: actor.isSuperAdmin },

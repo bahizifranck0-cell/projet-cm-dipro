@@ -20,6 +20,7 @@ import { db } from "@/server/db";
 import { todayBounds } from "@/lib/normalize";
 import { availableBeds } from "@/server/services/beds";
 import { AdmitButton } from "@/components/medical/hospital-forms";
+import { LAB_STATUS, patientLabRequests } from "@/server/services/laboratory";
 
 export const metadata = { title: "Dossier patient" };
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeZone: "UTC" });
@@ -40,6 +41,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     db.document.findMany({ where: { patientId: p.id }, orderBy: { createdAt: "desc" } }),
     can(actor, "appointments", "create") ? listSpecialties(true) : Promise.resolve([]),
   ]);
+  const labs = await patientLabRequests(actor, p.id);
   const activeAdmission = await db.admission.findFirst({ where: { patientId: p.id, status: "ACTIVE" } });
   const beds = can(actor, "hospitalization", "create") && !activeAdmission ? await availableBeds() : null;
   const visibleDocs = docs.filter((d) => { const [m, a] = DOC_PERMISSION[d.type]; return can(actor, m, a) || can(actor, "documents", "view"); });
@@ -124,6 +126,10 @@ export default async function Page({ params, searchParams }: { params: Promise<{
               </li>))}</ul>) }] : []),
           ...(can(actor, "appointments", "view") ? [{ label: "Rendez-vous", count: appts.length, content: appts.length === 0 ? <EmptyState title="Aucun rendez-vous." /> : (
             <ul className="space-y-2 text-sm">{appts.map((a) => <li key={a.id} className="flex flex-wrap justify-between gap-2 rounded-xl border border-white/15 p-3"><span><strong>{fmtDateTime(a.scheduledAt)}</strong> — Dr {a.doctor.lastName.toUpperCase()} · {a.reason} <span className="text-muted">({a.number})</span></span><Badge tone={a.status === "SCHEDULED" ? "blue" : "gray"}>{APPT_STATUS[a.status]}</Badge></li>)}</ul>) }] : []),
+          ...(labs.length || can(actor, "laboratory", "view") ? [{ label: "Examens", count: labs.length, content: labs.length === 0 ? <EmptyState title="Aucun examen." /> : (
+            <ul className="space-y-2 text-sm">{labs.map((r) => <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/15 p-3">
+              <span><strong>{r.number}</strong> · {fmtDateTime(r.requestedAt)} — {r.items.map((i) => `${i.labTest.name}${r.status === "VALIDATED" && i.resultValue ? ` : ${i.resultValue} ${i.unit ?? ""}` : ""}`).join(", ")}</span>
+              <span className="flex items-center gap-2"><Badge tone={r.status === "VALIDATED" ? "green" : "amber"}>{LAB_STATUS[r.status]}</Badge><Link href={`/laboratoire/${r.id}`} className="font-semibold text-brand-300 hover:underline">Ouvrir</Link></span></li>)}</ul>) }] : []),
           { label: "Documents", count: visibleDocs.length, content: visibleDocs.length === 0 ? <EmptyState title="Aucun document." /> : (
             <ul className="divide-y divide-white/10 text-sm">{visibleDocs.map((d) => <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 py-2"><span><strong>{d.title}</strong> <span className="text-muted">· {d.number} · {fmtDateTime(d.createdAt)}</span></span><a href={`/fichiers/documents/${d.id}`} target="_blank" className={buttonClass("secondary", "!min-h-9")}>Ouvrir le PDF</a></li>)}</ul>) },
           { label: "Informations administratives", content: info },

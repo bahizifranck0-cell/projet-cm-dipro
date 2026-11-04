@@ -107,6 +107,9 @@ test("Phase 6 — spécialités, consultation, ordonnance, rendez-vous", async (
     await dent.getByRole("textbox", { name: "Diagnostic" }).fill("Carie dentaire 36");
     await dent.getByRole("button", { name: "Enregistrer le brouillon" }).click();
     await dent.getByRole("status").filter({ hasText: "Brouillon enregistré." }).waitFor();
+    await dent.waitForTimeout(300);
+    assert.equal(await dent.getByLabel("Soin réalisé").inputValue(), "Obturation", "la liste garde sa valeur après enregistrement");
+    assert.equal(await dent.getByLabel("Dent concernée *").inputValue(), "36");
     await dent.getByLabel("Médicament 1").fill("Paracétamol 500 mg");
     await dent.getByLabel("Posologie").fill("1 comprimé");
     await dent.getByLabel("Fréquence").fill("3 fois par jour");
@@ -122,7 +125,6 @@ test("Phase 6 — spécialités, consultation, ordonnance, rendez-vous", async (
   });
 
   await t.test("signature : consultation verrouillée, ordonnance PDF disponible", async () => {
-    await dent.getByLabel("Dent concernée *").fill("36"); // valeurs saisies conservées après rechargement partiel
     await dent.getByRole("button", { name: "Signer la consultation" }).click();
     await dent.getByRole("dialog", { name: "Signer la consultation ?" }).getByRole("button", { name: "Signer" }).click();
     await dent.getByRole("status").filter({ hasText: /Consultation signée/ }).waitFor();

@@ -22,7 +22,7 @@ const VIEWPORTS = [
 const PAGES = ["/", "/personnel", "/personnel/nouveau", "/utilisateurs", "/utilisateurs/nouveau", "/parametres/roles",
   "/parametres/departements", "/parametres/journal", "/parametres/guide-visuel", "/compte/mot-de-passe",
   "/patients", "/patients/nouveau", "/reception", "/reception?vue=jour", "/parametres/general",
-  "/medecin", "/rendez-vous", "/parametres/specialites", "/hospitalisation", "/hospitalisation/chambres", "/parametres/formulaires"];
+  "/medecin", "/rendez-vous", "/parametres/specialites", "/hospitalisation", "/hospitalisation/chambres", "/parametres/formulaires", "/laboratoire", "/laboratoire/catalogue", "/pharmacie", "/pharmacie/produits/nouveau"];
 
 async function session(vp: (typeof VIEWPORTS)[number]) {
   const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, locale: "fr-FR" });

@@ -2,10 +2,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Baby, BedDouble, Building2, CalendarDays, HeartPulse, Stethoscope, ConciergeBell, Contact, Settings, ChevronsLeft, ChevronsRight, IdCard, KeyRound, LayoutDashboard, LogOut, Menu, Palette, ScrollText, Search, ShieldCheck, Users, X } from "lucide-react";
+import { Baby, BedDouble, FlaskConical, Pill, Building2, CalendarDays, HeartPulse, Stethoscope, ConciergeBell, Contact, Settings, ChevronsLeft, ChevronsRight, IdCard, KeyRound, LayoutDashboard, LogOut, Menu, Palette, ScrollText, Search, ShieldCheck, Users, X } from "lucide-react";
 import type { NavItem } from "./nav";
 
-const ICONS = { LayoutDashboard, Baby, BedDouble, CalendarDays, HeartPulse, Stethoscope, ConciergeBell, Contact, Settings, IdCard, Users, ShieldCheck, Building2, ScrollText, Palette } as const;
+const ICONS = { LayoutDashboard, Baby, BedDouble, FlaskConical, Pill, CalendarDays, HeartPulse, Stethoscope, ConciergeBell, Contact, Settings, IdCard, Users, ShieldCheck, Building2, ScrollText, Palette } as const;
 const iconOf = (n: string) => ICONS[n as keyof typeof ICONS] ?? LayoutDashboard;
 
 type Props = { items: NavItem[]; user: { name: string; role: string; avatar: React.ReactNode }; logo: React.ReactNode; logoutAction: () => Promise<void> };

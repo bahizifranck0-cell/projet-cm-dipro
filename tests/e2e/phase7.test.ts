@@ -56,7 +56,7 @@ test("Phase 7 — hospitalisation", async (t) => {
     for (const code of ["1", "2"]) {
       await resp.getByLabel(`Nouveau lit dans H${run.toUpperCase()}`).fill(code);
       await resp.getByLabel(`Nouveau lit dans H${run.toUpperCase()}`).press("Enter");
-      await resp.getByText(`Lit ${code}`, { exact: true }).waitFor();
+      await resp.getByRole("listitem").filter({ hasText: new RegExp(`^Lit ${code}`) }).first().waitFor();
     }
     assert.deepEqual(await axeViolations(resp), []);
   });
@@ -74,7 +74,7 @@ test("Phase 7 — hospitalisation", async (t) => {
   });
 
   await t.test("responsable : notifié, attribue un lit puis transfère, note de suivi", async () => {
-    assert.ok(await db.notification.findFirst({ where: { recipientUser: undefined, type: "ADMISSION", recipientUserId: (await db.user.findUniqueOrThrow({ where: { username: P.resp.username } })).id } }));
+    assert.ok(await db.notification.findFirst({ where: { type: "ADMISSION", recipientUserId: (await db.user.findUniqueOrThrow({ where: { username: P.resp.username } })).id } }));
     await resp.goto(`${BASE}/hospitalisation`);
     await resp.getByText("Lit à attribuer").waitFor();
     await resp.getByRole("link", { name: new RegExp(`KAVIRA${run}`, "i") }).first().click();
