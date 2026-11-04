@@ -7,4 +7,4 @@ export E2E_ADMIN_USER=superadmin E2E_ADMIN_PASS=AdminTest2026 COOKIE_SECURE=fals
 ./scripts/test-db-reset.sh
 CMDPRO_ADMIN_USERNAME=$E2E_ADMIN_USER CMDPRO_ADMIN_PASSWORD=$E2E_ADMIN_PASS npx tsx scripts/create-super-admin.ts
 npx next build >/dev/null
-node --import tsx --test --test-concurrency=1 tests/e2e/*.test.ts
+node --import tsx --test --test-concurrency=1 ${@:-tests/e2e/*.test.ts}

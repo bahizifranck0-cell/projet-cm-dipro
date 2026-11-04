@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  serverExternalPackages: ["@prisma/client"],
+  serverExternalPackages: ["@prisma/client", "pdfkit"],
   experimental: { serverActions: { bodySizeLimit: "6mb" } }, // photos
   async headers() {
     return [{

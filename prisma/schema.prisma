@@ -396,11 +396,13 @@ model Sequence {
 // ───────────────────── Spécialités et formulaires ─────────────────────
 
 model Specialty {
-  id          String   @id @default(cuid())
-  code        String   @unique
-  name        String
-  description String?
-  active      Boolean  @default(true)
+  id           String   @id @default(cuid())
+  code         String   @unique
+  name         String
+  description  String?
+  active       Boolean  @default(true)
+  // Consultations visibles seulement par leur auteur et les médecins de la même spécialité (ex. psychologie)
+  confidential Boolean  @default(false)
   createdAt   DateTime @default(now())
 
   departments   SpecialtyDepartment[]

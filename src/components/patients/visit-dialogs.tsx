@@ -22,7 +22,7 @@ function Targets({ departments, doctors, state, initial }: { departments: Opt[];
   );
 }
 
-export function ArrivalButton({ patientId, departments, doctors }: { patientId: string; departments: Opt[]; doctors: Opt[] }) {
+export function ArrivalButton({ patientId, departments, doctors, appointments = [] }: { patientId: string; departments: Opt[]; doctors: Opt[]; appointments?: Opt[] }) {
   const [open, setOpen] = useState(false);
   const [state, action] = useActionToast(registerArrivalAction.bind(null, patientId), undefined);
   useEffect(() => { if (state?.ok) setOpen(false); }, [state]);
@@ -31,6 +31,11 @@ export function ArrivalButton({ patientId, departments, doctors }: { patientId: 
       <Button onClick={() => setOpen(true)}><LogIn className="size-4" />Enregistrer l'arrivée</Button>
       <Dialog open={open} onClose={() => setOpen(false)} title="Arrivée du patient">
         <form action={action} className="space-y-4">
+          {appointments.length > 0 && (
+            <Field label="Arrivée sur rendez-vous" name="appointmentId" state={state} hint="Le médecin du rendez-vous est repris automatiquement.">
+              <Select name="appointmentId" defaultValue={appointments[0].id} state={state}><option value="">Sans rendez-vous</option>{appointments.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</Select>
+            </Field>
+          )}
           <Field label="Motif de la visite" name="reason" state={state}><Input name="reason" placeholder="Ex. : consultation, contrôle…" state={state} /></Field>
           <Targets departments={departments} doctors={doctors} state={state} />
           <p className="text-xs text-muted">L'orientation peut aussi être faite plus tard depuis la file d'attente.</p>

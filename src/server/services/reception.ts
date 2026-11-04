@@ -23,7 +23,7 @@ export async function listDoctors() {
 }
 
 const orientInput = z.object({ departmentId: opt(40), doctorId: opt(40) });
-const arrivalInput = orientInput.extend({ reason: opt(300), priority: z.coerce.boolean().default(false) });
+const arrivalInput = orientInput.extend({ reason: opt(300), priority: z.coerce.boolean().default(false), appointmentId: opt(40) });
 
 async function checkTargets(departmentId?: string, doctorId?: string) {
   if (departmentId && !(await db.department.findFirst({ where: { id: departmentId, active: true } })))
@@ -39,14 +39,22 @@ export async function registerArrival(actor: Actor, patientId: string, raw: unkn
   if (!(await db.patient.findUnique({ where: { id: patientId } }))) throw new ValidationError("Dossier patient introuvable.");
   const open = await db.visit.findFirst({ where: { patientId, status: { in: OPEN_STATUSES } } });
   if (open) throw new ValidationError("Ce patient a déjà un passage en cours : orientez-le depuis la file d'attente.");
+  // Arrivée sur rendez-vous : orientation reprise du rendez-vous, qui passe à « honoré »
+  const appt = d.appointmentId ? await db.appointment.findFirst({ where: { id: d.appointmentId, patientId, status: "SCHEDULED" } }) : null;
+  if (d.appointmentId && !appt) throw new ValidationError("Rendez-vous introuvable ou déjà traité.");
+  if (appt) { d.doctorId ??= appt.doctorId; d.departmentId ??= appt.departmentId ?? undefined; d.reason ??= `Rendez-vous ${appt.number} — ${appt.reason}`; }
   await checkTargets(d.departmentId, d.doctorId);
   try {
-    const visit = await db.visit.create({
-      data: {
-        patientId, reason: d.reason, priority: d.priority, registeredById: actor.userId,
-        orientedToDepartmentId: d.departmentId, orientedToDoctorId: d.doctorId,
-        status: d.departmentId || d.doctorId ? "ORIENTED" : "WAITING",
-      },
+    const visit = await db.$transaction(async (tx) => {
+      const v = await tx.visit.create({
+        data: {
+          patientId, reason: d.reason, priority: d.priority, registeredById: actor.userId,
+          orientedToDepartmentId: d.departmentId, orientedToDoctorId: d.doctorId,
+          status: d.departmentId || d.doctorId ? "ORIENTED" : "WAITING",
+        },
+      });
+      if (appt) await tx.appointment.update({ where: { id: appt.id }, data: { status: "HONORED", events: { create: { status: "HONORED", byUserId: actor.userId } } } });
+      return v;
     });
     await audit(actor, { action: "ARRIVAL", module: "reception", entityType: "Visit", entityId: visit.id, details: { patientId, ...d } });
     return visit;

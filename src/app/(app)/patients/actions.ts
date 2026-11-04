@@ -35,7 +35,7 @@ export async function updatePatientAction(id: string, _: ActionState, fd: FormDa
 export async function registerArrivalAction(patientId: string, _: ActionState, fd: FormData): Promise<ActionState> {
   const res = await runAction(async () => {
     await reception.registerArrival(await actionActor(), patientId, {
-      reason: str(fd, "reason"), priority: fd.get("priority") === "on", departmentId: str(fd, "departmentId"), doctorId: str(fd, "doctorId"),
+      reason: str(fd, "reason"), priority: fd.get("priority") === "on", departmentId: str(fd, "departmentId"), doctorId: str(fd, "doctorId"), appointmentId: str(fd, "appointmentId"),
     });
     revalidatePath("/reception");
   });

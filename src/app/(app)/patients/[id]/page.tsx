@@ -11,6 +11,15 @@ import { Tabs } from "@/components/ui/tabs";
 import { buttonClass } from "@/components/ui/button-class";
 import { ArrivalButton } from "@/components/patients/visit-dialogs";
 import { fmtDateTime } from "@/lib/labels";
+import { patientConsultations } from "@/server/services/consultations";
+import { listAppointments, APPT_STATUS } from "@/server/services/appointments";
+import { listSpecialties } from "@/server/services/specialties";
+import { DOC_PERMISSION } from "@/server/services/documents";
+import { NewAppointment } from "@/components/medical/appointment-dialogs";
+import { db } from "@/server/db";
+import { todayBounds } from "@/lib/normalize";
+import { availableBeds } from "@/server/services/beds";
+import { AdmitButton } from "@/components/medical/hospital-forms";
 
 export const metadata = { title: "Dossier patient" };
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeZone: "UTC" });
@@ -24,7 +33,18 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const { patient: p, creator } = rec;
   const age = ageFrom(p.birthDate);
   const open = p.visits.find((v) => OPEN_STATUSES.includes(v.status));
-  const opts = can(actor, "reception", "create") && !open ? await orientationOptions() : null;
+  const opts = (can(actor, "reception", "create") && !open) || can(actor, "appointments", "create") ? await orientationOptions() : null;
+  const [consults, appts, docs, specs] = await Promise.all([
+    patientConsultations(actor, p.id),
+    can(actor, "appointments", "view") ? listAppointments(actor, { patientId: p.id }) : Promise.resolve([]),
+    db.document.findMany({ where: { patientId: p.id }, orderBy: { createdAt: "desc" } }),
+    can(actor, "appointments", "create") ? listSpecialties(true) : Promise.resolve([]),
+  ]);
+  const activeAdmission = await db.admission.findFirst({ where: { patientId: p.id, status: "ACTIVE" } });
+  const beds = can(actor, "hospitalization", "create") && !activeAdmission ? await availableBeds() : null;
+  const visibleDocs = docs.filter((d) => { const [m, a] = DOC_PERMISSION[d.type]; return can(actor, m, a) || can(actor, "documents", "view"); });
+  const { start, end } = todayBounds();
+  const todayAppts = appts.filter((a) => a.status === "SCHEDULED" && a.scheduledAt >= new Date(start.getTime() - 86400e3) && a.scheduledAt < new Date(end.getTime() + 86400e3));
 
   const visits = p.visits.length === 0 ? <EmptyState title="Aucun passage enregistré." /> : (
     <ol className="relative space-y-3 border-l border-white/20 pl-5">
@@ -76,7 +96,11 @@ export default async function Page({ params, searchParams }: { params: Promise<{
             {open && <div className="mt-3"><Badge tone="blue">Passage en cours : {VISIT_STATUS_LABEL[open.status]}</Badge></div>}
           </div>
           <div className="flex flex-wrap gap-2">
-            {opts && <ArrivalButton patientId={p.id} departments={opts.departments} doctors={opts.doctors} />}
+            {opts && can(actor, "reception", "create") && !open && <ArrivalButton patientId={p.id} departments={opts.departments} doctors={opts.doctors}
+              appointments={todayAppts.map((a) => ({ id: a.id, name: `${a.number} — ${fmtDateTime(a.scheduledAt)} — Dr ${a.doctor.lastName.toUpperCase()}` }))} />}
+            {opts && can(actor, "appointments", "create") && <NewAppointment patientId={p.id} patientName={displayName(p)} doctors={opts.doctors} specialties={specs.map((x) => ({ id: x.id, name: x.name }))} />}
+            {beds && <AdmitButton patientId={p.id} beds={beds} label="Admission" />}
+            {activeAdmission && can(actor, "hospitalization", "view") && <Link href={`/hospitalisation/${activeAdmission.id}`} className={buttonClass("secondary")}>Voir l'hospitalisation</Link>}
             {can(actor, "patients", "update") && <Link href={`/patients/${p.id}/modifier`} className={buttonClass("secondary")}><Pencil className="size-4" />Modifier</Link>}
           </div>
         </div>
@@ -84,6 +108,24 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <Card>
         <Tabs tabs={[
           { label: "Passages", count: p.visits.length, content: visits },
+          ...(can(actor, "consultations", "view") ? [{ label: "Consultations", count: consults.length, content: consults.length === 0 ? <EmptyState title="Aucune consultation." /> : (
+            <ul className="space-y-3">{consults.map((c) => (
+              <li key={c.id} className="rounded-xl border border-white/15 bg-white/5 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-medium">{c.specialty.name} — Dr {c.doctor.lastName.toUpperCase()} {c.doctor.firstName}</p>
+                  <span className="flex gap-2">{c.status === "DRAFT" ? <Badge tone="amber">Brouillon</Badge> : <Badge tone="green">Signée</Badge>}{c.hidden && <Badge tone="amber">Confidentielle</Badge>}</span>
+                </div>
+                <p className="text-sm text-muted">{fmtDateTime(c.startedAt)}</p>
+                {c.hidden ? <p className="mt-1 text-sm text-muted">Contenu réservé aux médecins de cette spécialité.</p> : <>
+                  {c.diagnosis && <p className="mt-1 text-sm"><span className="text-muted">Diagnostic :</span> {c.diagnosis}</p>}
+                  {c.prescriptions.length > 0 && <p className="mt-1 text-sm"><span className="text-muted">Prescription :</span> {c.prescriptions.flatMap((x) => x.items.map((i) => i.medication)).join(", ")}</p>}
+                  <Link href={`/consultations/${c.id}`} className="mt-2 inline-block text-sm font-semibold text-brand-300 hover:underline">Ouvrir la consultation</Link>
+                </>}
+              </li>))}</ul>) }] : []),
+          ...(can(actor, "appointments", "view") ? [{ label: "Rendez-vous", count: appts.length, content: appts.length === 0 ? <EmptyState title="Aucun rendez-vous." /> : (
+            <ul className="space-y-2 text-sm">{appts.map((a) => <li key={a.id} className="flex flex-wrap justify-between gap-2 rounded-xl border border-white/15 p-3"><span><strong>{fmtDateTime(a.scheduledAt)}</strong> — Dr {a.doctor.lastName.toUpperCase()} · {a.reason} <span className="text-muted">({a.number})</span></span><Badge tone={a.status === "SCHEDULED" ? "blue" : "gray"}>{APPT_STATUS[a.status]}</Badge></li>)}</ul>) }] : []),
+          { label: "Documents", count: visibleDocs.length, content: visibleDocs.length === 0 ? <EmptyState title="Aucun document." /> : (
+            <ul className="divide-y divide-white/10 text-sm">{visibleDocs.map((d) => <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 py-2"><span><strong>{d.title}</strong> <span className="text-muted">· {d.number} · {fmtDateTime(d.createdAt)}</span></span><a href={`/fichiers/documents/${d.id}`} target="_blank" className={buttonClass("secondary", "!min-h-9")}>Ouvrir le PDF</a></li>)}</ul>) },
           { label: "Informations administratives", content: info },
         ]} />
         <p className="mt-5 border-t border-white/10 pt-4 text-xs text-muted">Les consultations, examens, hospitalisations, factures et documents s'ajouteront à ce dossier au fur et à mesure de la mise en service de leurs modules.</p>
