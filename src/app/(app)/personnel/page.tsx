@@ -34,7 +34,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
               <Card key={e.id} className="flex min-w-0 items-center gap-4 !p-4">
                 <Avatar employeeId={e.id} hasPhoto={!!e.photoPath} name={name} size={52} />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold">{e.lastName.toUpperCase()} {e.postName ?? ""} {e.firstName}</p>
+                  <Link href={`/personnel/${e.id}`} className="block truncate font-semibold hover:underline">{e.lastName.toUpperCase()} {e.postName ?? ""} {e.firstName}</Link>
                   <p className="truncate text-sm text-muted">{e.position}{e.department ? ` · ${e.department.name}` : ""}</p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5"><Badge tone={tone}>{label}</Badge><Badge>{e.matricule}</Badge>{e.user && <Badge tone="blue">Compte : {e.user.username}</Badge>}</div>
                 </div>

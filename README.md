@@ -27,6 +27,21 @@ npm run build
 npm start                   # http://adresse-du-serveur:3000
 ```
 
+### Mise à jour d'une installation existante
+
+Toujours dans cet ordre, pour ne jamais perdre de données :
+
+```bash
+pg_dump -Fc cmdpro > sauvegarde-$(date +%F).dump   # 1. sauvegarde de la base
+cp -r "$STORAGE_DIR" sauvegarde-fichiers-$(date +%F) # 2. sauvegarde des documents et photos
+git pull                                             # 3. nouvelle version
+npm ci
+npm run db:migrate                                   # 4. migrations (ajouts contrôlés, testés au préalable)
+npm run build && redémarrer le service               # 5. redémarrage
+```
+
+Ne jamais démarrer une nouvelle version du logiciel avant d'avoir appliqué ses migrations.
+
 Variables d'environnement :
 
 | Variable | Rôle |

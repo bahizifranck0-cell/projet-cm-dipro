@@ -2,13 +2,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Baby, BedDouble, FlaskConical, Pill, Building2, CalendarDays, HeartPulse, Stethoscope, ConciergeBell, Contact, Settings, ChevronsLeft, ChevronsRight, IdCard, KeyRound, LayoutDashboard, LogOut, Menu, Palette, ScrollText, Search, ShieldCheck, Users, X } from "lucide-react";
+import { Baby, Banknote, BarChart3, Bell, Files, BedDouble, FlaskConical, HandCoins, Landmark, Pill, Tags, Building2, CalendarDays, HeartPulse, Stethoscope, ConciergeBell, Contact, Settings, ChevronsLeft, ChevronsRight, IdCard, KeyRound, LayoutDashboard, LogOut, Menu, Palette, ScrollText, Search, ShieldCheck, Users, X } from "lucide-react";
 import type { NavItem } from "./nav";
 
-const ICONS = { LayoutDashboard, Baby, BedDouble, FlaskConical, Pill, CalendarDays, HeartPulse, Stethoscope, ConciergeBell, Contact, Settings, IdCard, Users, ShieldCheck, Building2, ScrollText, Palette } as const;
+const ICONS = { LayoutDashboard, Baby, Banknote, BarChart3, Bell, Files, BedDouble, FlaskConical, HandCoins, Landmark, Pill, Tags, CalendarDays, HeartPulse, Stethoscope, ConciergeBell, Contact, Settings, IdCard, Users, ShieldCheck, Building2, ScrollText, Palette } as const;
 const iconOf = (n: string) => ICONS[n as keyof typeof ICONS] ?? LayoutDashboard;
 
-type Props = { items: NavItem[]; user: { name: string; role: string; avatar: React.ReactNode }; logo: React.ReactNode; logoutAction: () => Promise<void> };
+type Props = { items: NavItem[]; user: { name: string; role: string; avatar: React.ReactNode; employeeId?: string | null }; logo: React.ReactNode; logoutAction: () => Promise<void> };
 
 function Badge({ n, dot }: { n?: number; dot?: boolean }) {
   if (!n) return null;
@@ -133,6 +133,8 @@ export function Sidebar({ items, user, logo, logoutAction }: Props) {
               <p className="truncate text-xs text-muted">{user.role}</p>
             </div>
           </div>
+          {user.employeeId && <Link href={`/personnel/${user.employeeId}`} title="Mon dossier" className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm text-ink/85 hover:bg-white/8">
+            <IdCard className="size-5 shrink-0" aria-hidden /><span className={compactCls}>Mon dossier</span></Link>}
           <Link href="/compte/mot-de-passe" title="Mot de passe" className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm text-ink/85 hover:bg-white/8">
             <KeyRound className="size-5 shrink-0" aria-hidden /><span className={compactCls}>Mot de passe</span>
           </Link>

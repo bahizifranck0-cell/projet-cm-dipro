@@ -17,6 +17,7 @@ const hm = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit"
 export default async function Page() {
   const actor = await requirePage("consultations", "view");
   const asg = await myAssignments(actor);
+  await db.notification.updateMany({ where: { recipientUserId: actor.userId, type: "REFERRAL", readAt: null }, data: { readAt: new Date() } });
   const { start, end } = todayBounds();
   const [queue, appts, recent] = await Promise.all([
     doctorQueue(actor),

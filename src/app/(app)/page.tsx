@@ -13,7 +13,7 @@ function greeting() {
 
 export default async function Dashboard() {
   const actor = await requireActor();
-  const shortcuts = navFor(actor).filter((i) => i.href !== "/");
+  const shortcuts = navFor(actor).filter((i) => i.href !== "/" && i.href !== "/notifications");
   const stats = can(actor, "reception", "view") ? await receptionStats() : null;
   return (
     <>

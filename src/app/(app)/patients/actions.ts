@@ -59,3 +59,14 @@ export async function cancelVisitAction(visitId: string, _: ActionState, fd: For
     return "Passage annulé.";
   });
 }
+
+import * as portal from "@/server/services/portal";
+export async function portalAccountAction(patientId: string, _: ActionState, fd: FormData): Promise<ActionState> {
+  return runAction(async () => { await portal.createPatientAccount(await actionActor(), patientId, str(fd, "username") ?? "", str(fd, "password") ?? ""); revalidatePath(`/patients/${patientId}`); return "Compte du portail créé. Remettez l'identifiant et le mot de passe provisoire au patient."; });
+}
+export async function portalStatusAction(patientId: string, status: "ACTIVE" | "DISABLED", _: ActionState): Promise<ActionState> {
+  return runAction(async () => { await portal.setPatientAccountStatus(await actionActor(), patientId, status); revalidatePath(`/patients/${patientId}`); return status === "DISABLED" ? "Accès au portail désactivé." : "Accès au portail réactivé."; });
+}
+export async function portalResetAction(patientId: string, _: ActionState, fd: FormData): Promise<ActionState> {
+  return runAction(async () => { await portal.resetPatientPassword(await actionActor(), patientId, str(fd, "password") ?? ""); return "Mot de passe provisoire enregistré."; });
+}

@@ -15,7 +15,8 @@
     "admin:create": "tsx scripts/create-super-admin.ts",
     "test:db": "prisma migrate deploy && node --test tests/db/*.test.mjs",
     "test": "node --import tsx --test --test-concurrency=1 tests/unit/*.test.ts tests/services/*.test.ts",
-    "test:e2e": "./scripts/e2e.sh"
+    "test:e2e": "./scripts/e2e.sh",
+    "demo:seed": "tsx scripts/seed-demo.ts"
   },
   "engines": {
     "node": ">=22"

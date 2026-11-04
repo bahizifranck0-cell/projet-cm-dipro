@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import { requirePage } from "@/server/auth/current";
+import { markRead } from "@/server/services/notifications";
 import { can } from "@/server/auth/actor";
 import { listAppointments, APPT_STATUS } from "@/server/services/appointments";
 import { listDoctors } from "@/server/services/reception";
@@ -18,6 +19,7 @@ const tone = (s: AppointmentStatus) => ({ SCHEDULED: "blue", HONORED: "green", M
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ date?: string; medecin?: string; q?: string; statut?: string }> }) {
   const actor = await requirePage("appointments", "view");
+  await markRead(actor, "all", "appointments"); // module sans page de détail : consulter la liste vaut lecture
   const sp = await searchParams;
   const date = sp.date && /^\d{4}-\d{2}-\d{2}$/.test(sp.date) ? sp.date : new Date(Date.now() + 2 * 3600e3).toISOString().slice(0, 10);
   const from = new Date(`${date}T00:00:00+02:00`);

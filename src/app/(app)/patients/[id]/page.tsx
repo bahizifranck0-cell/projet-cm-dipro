@@ -21,6 +21,9 @@ import { todayBounds } from "@/lib/normalize";
 import { availableBeds } from "@/server/services/beds";
 import { AdmitButton } from "@/components/medical/hospital-forms";
 import { LAB_STATUS, patientLabRequests } from "@/server/services/laboratory";
+import { fmtMoney, INVOICE_STATUS, openDebtsOf, patientAccount } from "@/server/services/billing";
+import { CreateInvoice } from "@/components/billing/billing-forms";
+import { PortalAccount } from "@/components/patients/portal-account";
 
 export const metadata = { title: "Dossier patient" };
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeZone: "UTC" });
@@ -42,6 +45,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     can(actor, "appointments", "create") ? listSpecialties(true) : Promise.resolve([]),
   ]);
   const labs = await patientLabRequests(actor, p.id);
+  const finView = ["billing", "cash", "credit", "finance"].some((m) => can(actor, m as "cash", "view"));
+  const [debts, account] = finView ? await Promise.all([openDebtsOf(p.id), patientAccount(actor, p.id)]) : [[], null];
   const activeAdmission = await db.admission.findFirst({ where: { patientId: p.id, status: "ACTIVE" } });
   const beds = can(actor, "hospitalization", "create") && !activeAdmission ? await availableBeds() : null;
   const visibleDocs = docs.filter((d) => { const [m, a] = DOC_PERMISSION[d.type]; return can(actor, m, a) || can(actor, "documents", "view"); });
@@ -84,6 +89,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <Link href="/patients" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowLeft className="size-4" />Patients</Link>
       {sp.cree && <Alert tone="success">Dossier créé.</Alert>}
       {sp.modifie && <Alert tone="success">Modifications enregistrées.</Alert>}
+      {debts.length > 0 && <Alert tone="warning" title="Dette antérieure">{debts.map((d) => <span key={d.number} className="mr-3 inline-block">Facture <Link href={`/caisse/factures/${d.invoiceId}`} className="font-semibold underline">{d.number}</Link> : reste {fmtMoney(d.remaining, d.currency)}</span>)}</Alert>}
       {sp.arrivee && open && <Alert tone="success">Arrivée enregistrée : le patient est dans la file d'attente. <Link href="/reception" className="font-semibold underline">Voir la file</Link></Alert>}
       <Card>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -130,12 +136,23 @@ export default async function Page({ params, searchParams }: { params: Promise<{
             <ul className="space-y-2 text-sm">{labs.map((r) => <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/15 p-3">
               <span><strong>{r.number}</strong> · {fmtDateTime(r.requestedAt)} — {r.items.map((i) => `${i.labTest.name}${r.status === "VALIDATED" && i.resultValue ? ` : ${i.resultValue} ${i.unit ?? ""}` : ""}`).join(", ")}</span>
               <span className="flex items-center gap-2"><Badge tone={r.status === "VALIDATED" ? "green" : "amber"}>{LAB_STATUS[r.status]}</Badge><Link href={`/laboratoire/${r.id}`} className="font-semibold text-brand-300 hover:underline">Ouvrir</Link></span></li>)}</ul>) }] : []),
+          ...(account ? [{ label: "Compte", count: account.charges.length + account.invoices.filter((i) => i.status === "ISSUED" || i.status === "PARTIALLY_PAID").length, content: (
+            <div className="space-y-4 text-sm">
+              <div><p className="mb-2 font-medium">Prestations non facturées</p>
+                {account.charges.length === 0 ? <p className="text-muted">Aucune.</p> : <ul className="divide-y divide-white/10">{account.charges.map((c) => <li key={c.id} className="flex justify-between gap-2 py-1.5"><span>{c.description}{c.department && <span className="text-muted"> · {c.department.name}</span>} <span className="text-muted">× {c.quantity.toString()}</span></span><span>{fmtMoney(c.total, c.currency)}</span></li>)}</ul>}
+                {account.charges.length > 0 && (can(actor, "cash", "create") || can(actor, "billing", "create")) && <div className="mt-3"><CreateInvoice patientId={p.id} /></div>}</div>
+              <div><p className="mb-2 font-medium">Factures</p>
+                {account.invoices.length === 0 ? <p className="text-muted">Aucune.</p> : <ul className="space-y-1">{account.invoices.map((i) => <li key={i.id} className="flex flex-wrap justify-between gap-2"><Link href={`/caisse/factures/${i.id}`} className="font-semibold text-brand-300 hover:underline">{i.number}</Link><span>{fmtMoney(i.total, i.currency)} · reste {fmtMoney(i.total.sub(i.amountPaid), i.currency)} · <Badge tone={i.status === "PAID" ? "green" : "amber"}>{INVOICE_STATUS[i.status]}</Badge></span></li>)}</ul>}</div>
+            </div>) }] : []),
           { label: "Documents", count: visibleDocs.length, content: visibleDocs.length === 0 ? <EmptyState title="Aucun document." /> : (
             <ul className="divide-y divide-white/10 text-sm">{visibleDocs.map((d) => <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 py-2"><span><strong>{d.title}</strong> <span className="text-muted">· {d.number} · {fmtDateTime(d.createdAt)}</span></span><a href={`/fichiers/documents/${d.id}`} target="_blank" className={buttonClass("secondary", "!min-h-9")}>Ouvrir le PDF</a></li>)}</ul>) },
           { label: "Informations administratives", content: info },
         ]} />
-        <p className="mt-5 border-t border-white/10 pt-4 text-xs text-muted">Les consultations, examens, hospitalisations, factures et documents s'ajouteront à ce dossier au fur et à mesure de la mise en service de leurs modules.</p>
       </Card>
+      {can(actor, "patients", "update") && (async () => {
+        const acc = await db.patientAccount.findUnique({ where: { patientId: p.id } });
+        return <Card><h2 className="mb-3 text-lg font-semibold">Portail patient</h2><PortalAccount patientId={p.id} account={acc ? { username: acc.username, status: acc.status, lastLoginAt: acc.lastLoginAt ? fmtDateTime(acc.lastLoginAt) : null } : null} /></Card>;
+      })()}
     </div>
   );
 }

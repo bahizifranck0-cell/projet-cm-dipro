@@ -30,7 +30,7 @@ export function createPdf(meta: PdfMeta, draw: (doc: Doc) => void): Promise<Buff
     doc.y = 125; doc.x = 50;
     doc.fillColor(BLUE).font("Helvetica-Bold").fontSize(17).text(meta.title, { align: "left" });
     if (meta.subtitle) doc.fillColor(GREY).font("Helvetica").fontSize(10).text(meta.subtitle);
-    if (meta.demo) doc.fillColor("#b00020").font("Helvetica-Bold").fontSize(10).text("DOCUMENT DE DÉMONSTRATION — DONNÉES FICTIVES");
+    if (meta.demo ?? process.env.CMDPRO_DEMO === "1") doc.fillColor("#b00020").font("Helvetica-Bold").fontSize(10).text("DOCUMENT DE DÉMONSTRATION — DONNÉES FICTIVES");
     doc.moveDown(0.8).fillColor("#000").font("Helvetica").fontSize(10);
 
     draw(doc);

@@ -89,7 +89,7 @@ test("Phase 7 — hospitalisation", async (t) => {
     await resp.getByRole("button", { name: "Ajouter la note" }).click();
     await resp.getByText("Température 39,5 °C, perfusion posée").waitFor();
     await resp.getByRole("tab", { name: /Mouvements de lit/ }).click();
-    await resp.getByText(/lit 1/).first().waitFor();
+    await resp.getByRole("tabpanel").getByText(/lit 1/).first().waitFor();
     assert.equal(await db.bedAssignment.count({ where: { admission: { patientId } } }), 2);
     assert.deepEqual(await axeViolations(resp), []);
   });
