@@ -29,13 +29,13 @@ export function PermissionMatrix({ roleId, initial }: { roleId: string; initial:
                 if (!(m.actions as readonly string[]).includes(a)) return <span key={a} className="hidden text-center text-muted/40 md:block" aria-hidden>—</span>;
                 return (
                   <label key={a} className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/15 px-2 py-1.5 text-sm hover:bg-white/8 md:justify-center md:border-0 md:p-1">
-                    <input type="checkbox" name="perm" value={k} checked={checked.has(k)} onChange={() => toggle(k)} className="size-5 accent-[var(--brand-500)]" />
+                    <input type="checkbox" name="perm" value={k} checked={checked.has(k)} onChange={() => toggle(k)} className="checkbox" />
                     <span className="md:sr-only">{ACTION_LABELS[a]}</span>
                   </label>
                 );
               })}
               <label className="flex cursor-pointer items-center gap-2 text-sm text-muted md:justify-center">
-                <input type="checkbox" checked={allOn} onChange={() => toggleRow(keys, !allOn)} className="size-4 accent-[var(--brand-300)]" aria-label={`Tout cocher : ${m.label}`} />
+                <input type="checkbox" checked={allOn} onChange={() => toggleRow(keys, !allOn)} className="checkbox" aria-label={`Tout cocher : ${m.label}`} />
                 <span className="md:sr-only">Tout</span>
               </label>
             </fieldset>

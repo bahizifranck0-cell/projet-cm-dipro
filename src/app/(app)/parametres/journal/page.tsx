@@ -18,8 +18,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
     <>
       <PageHeader title="Journal d'audit" subtitle="Toutes les opérations importantes. Ce journal ne peut être ni modifié ni effacé." />
       <div className="mb-4 flex flex-wrap gap-2">
-        <Link href="/parametres/journal" className={buttonClass(module ? "ghost" : "secondary", "!py-1.5")} aria-pressed={!module}>Tout</Link>
-        {modules.map((m) => <Link key={m} href={`?module=${m}`} className={buttonClass(module === m ? "secondary" : "ghost", "!py-1.5")} aria-pressed={module === m}>{moduleText(m)}</Link>)}
+        <Link href="/parametres/journal" className={buttonClass(module ? "ghost" : "secondary", "!py-1.5")} aria-current={!module ? "page" : undefined}>Tout</Link>
+        {modules.map((m) => <Link key={m} href={`?module=${m}`} className={buttonClass(module === m ? "secondary" : "ghost", "!py-1.5")} aria-current={module === m ? "page" : undefined}>{moduleText(m)}</Link>)}
       </div>
       <Card className="!p-0">
         {rows.length === 0 ? <div className="p-5"><EmptyState title="Aucune opération." /></div> : (

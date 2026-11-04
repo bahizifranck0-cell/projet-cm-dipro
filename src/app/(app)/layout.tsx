@@ -4,6 +4,9 @@ import { requireActor } from "@/server/auth/current";
 import { navFor } from "@/components/nav";
 import { Sidebar } from "@/components/sidebar";
 import { Logo } from "@/components/logo";
+import { Avatar } from "@/components/avatar";
+import { ToastProvider } from "@/components/ui/toast";
+import { db } from "@/server/db";
 import { logoutAction } from "./actions";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -12,10 +15,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const path = (await headers()).get("x-cmdpro-path") ?? "";
   if (actor.mustChangePassword && !path.startsWith("/compte/mot-de-passe")) redirect("/compte/mot-de-passe");
 
+  const photo = actor.employeeId ? await db.employee.findUnique({ where: { id: actor.employeeId }, select: { photoPath: true } }) : null;
+
   return (
-    <div className="lg:flex">
-      <Sidebar items={navFor(actor)} user={{ name: actor.displayName, role: actor.roleName }} logo={<Logo size={40} />} logoutAction={logoutAction} />
-      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">{children}</main>
-    </div>
+    <ToastProvider>
+      <a href="#contenu" className="sr-only z-[70] rounded-lg bg-white px-3 py-2 text-brand-900 focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Aller au contenu</a>
+      <div className="md:flex">
+        <Sidebar items={navFor(actor)} logo={<Logo size={40} />} logoutAction={logoutAction}
+          user={{ name: actor.displayName, role: actor.roleName, avatar: <Avatar employeeId={actor.employeeId} hasPhoto={!!photo?.photoPath} name={actor.displayName} size={36} /> }} />
+        <main id="contenu" className="pb-bottom-nav min-w-0 flex-1 px-4 pt-5 sm:px-6 md:pt-6 lg:px-10 lg:pt-8">
+          <div className="mx-auto max-w-7xl">{children}</div>
+        </main>
+      </div>
+    </ToastProvider>
   );
 }

@@ -185,8 +185,8 @@ test("Phase 3 — parcours complet", async (t) => {
       const overflow = await agent.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       assert.ok(overflow <= 0, `${p} déborde de ${overflow}px`);
     }
-    await agent.getByRole("button", { name: "Ouvrir le menu" }).click();
-    await agent.getByRole("link", { name: "Personnel" }).waitFor();
+    await agent.getByRole("button", { name: "Menu" }).click();
+    await agent.locator("#cmdpro-sidebar").getByRole("link", { name: "Personnel" }).waitFor();
     await agent.screenshot({ path: path.join(SHOTS, "04-mobile-menu.png") });
   });
 
@@ -203,6 +203,7 @@ test("Phase 3 — parcours complet", async (t) => {
   await t.test("désactiver le compte déconnecte l'agent immédiatement", async () => {
     await admin.goto(agentUserUrl);
     await admin.getByRole("button", { name: "Désactiver le compte" }).click();
+    await admin.getByRole("dialog", { name: "Désactiver ce compte ?" }).getByRole("button", { name: "Désactiver", exact: true }).click();
     await admin.getByText(/Compte désactivé : l'utilisateur a été déconnecté/).waitFor();
     await agent.goto(`${BASE}/`);
     await agent.waitForURL(/\/connexion/);

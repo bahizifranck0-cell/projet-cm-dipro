@@ -3,6 +3,7 @@ import { useActionState } from "react";
 import { resetPasswordAction, setStatusAction, updateAssignmentAction } from "../actions";
 import { Field, FormMessage, Input, Select } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/button";
+import { ConfirmSubmit } from "@/components/ui/confirm";
 
 type Opt = { id: string; name: string };
 type Props = { id: string; roleId: string; departmentId: string | null; status: "ACTIVE" | "DISABLED"; isSuperAdmin: boolean; isSelf: boolean; roles: Opt[]; departments: Opt[] };
@@ -39,7 +40,10 @@ export function ManageUser(p: Props) {
           ? "Désactiver empêche toute connexion et ferme immédiatement les sessions ouvertes. L'historique est conservé."
           : "Le compte est désactivé. Le réactiver permet de nouveau la connexion."}</p>
         <FormMessage state={sState} />
-        {!p.isSelf && <SubmitButton variant={p.status === "ACTIVE" ? "danger" : "primary"}>{p.status === "ACTIVE" ? "Désactiver le compte" : "Réactiver le compte"}</SubmitButton>}
+        {!p.isSelf && (p.status === "ACTIVE"
+          ? <ConfirmSubmit label="Désactiver le compte" title="Désactiver ce compte ?" confirmLabel="Désactiver"
+              message="La personne sera déconnectée immédiatement et ne pourra plus se connecter. Son historique est conservé." />
+          : <SubmitButton>Réactiver le compte</SubmitButton>)}
       </form>
     </div>
   );
