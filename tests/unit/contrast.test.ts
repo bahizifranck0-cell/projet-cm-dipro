@@ -28,7 +28,12 @@ const card = over(parse(token("glass-bg")), bg900);
 const cardStrong = over(parse(token("glass-bg-strong")), bg900);
 const fieldBg = over([4, 17, 46, 0.55], card);
 
+// Barres fixes (« glass-solid ») : pire cas = contenu blanc qui passe derrière
+const solid = css.match(/\.glass-solid \{[^}]*background: (rgba\([^)]+\))/)![1];
+const solidOnWhite = over(parse(solid), [255, 255, 255, 1]);
+
 const cases: [string, RGBA, RGBA, number][] = [
+  ["Libellé de la barre basse (sur contenu blanc)", over([243, 247, 255, 0.8], solidOnWhite), solidOnWhite, 4.5],
   ["Texte principal sur fond", parse(token("text")), bg900, 4.5],
   ["Texte principal sur carte", parse(token("text")), cardStrong, 4.5],
   ["Texte secondaire sur carte", over(parse(token("text-muted")), card), card, 4.5],

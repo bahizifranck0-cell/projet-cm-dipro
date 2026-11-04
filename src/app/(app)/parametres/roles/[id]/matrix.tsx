@@ -14,7 +14,7 @@ export function PermissionMatrix({ roleId, initial }: { roleId: string; initial:
 
   return (
     <form action={action}>
-      <div className="hidden grid-cols-[minmax(180px,1fr)_repeat(6,84px)_70px] gap-2 border-b border-white/15 px-3 pb-2 text-xs font-semibold tracking-wide text-muted uppercase md:grid">
+      <div className="hidden xl:grid grid-cols-[minmax(180px,1fr)_repeat(6,84px)_70px] gap-2 border-b border-white/15 px-3 pb-2 text-xs font-semibold tracking-wide text-muted uppercase">
         <span>Module</span>{ACTIONS.map((a) => <span key={a} className="text-center">{ACTION_LABELS[a]}</span>)}<span className="text-center">Tout</span>
       </div>
       <div className="divide-y divide-white/10">
@@ -22,21 +22,21 @@ export function PermissionMatrix({ roleId, initial }: { roleId: string; initial:
           const keys = m.actions.map((a) => `${m.key}.${a}`);
           const allOn = keys.every((k) => checked.has(k));
           return (
-            <fieldset key={m.key} className="grid grid-cols-3 gap-2 px-3 py-3 sm:grid-cols-6 md:grid-cols-[minmax(180px,1fr)_repeat(6,84px)_70px] md:items-center">
-              <legend className="contents"><span className="col-span-full font-medium md:col-span-1">{m.label}{"hint" in m && <span className="block text-xs font-normal text-muted">{m.hint}</span>}</span></legend>
+            <fieldset key={m.key} className="grid grid-cols-3 gap-2 px-3 py-3 sm:grid-cols-6 xl:grid-cols-[minmax(180px,1fr)_repeat(6,76px)_64px] xl:items-center">
+              <legend className="contents"><span className="col-span-full font-medium xl:col-span-1">{m.label}{"hint" in m && <span className="block text-xs font-normal text-muted">{m.hint}</span>}</span></legend>
               {ACTIONS.map((a) => {
                 const k = `${m.key}.${a}`;
-                if (!(m.actions as readonly string[]).includes(a)) return <span key={a} className="hidden text-center text-muted/40 md:block" aria-hidden>—</span>;
+                if (!(m.actions as readonly string[]).includes(a)) return <span key={a} className="hidden text-center text-muted/40 xl:block" aria-hidden>—</span>;
                 return (
-                  <label key={a} className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/15 px-2 py-1.5 text-sm hover:bg-white/8 md:justify-center md:border-0 md:p-1">
+                  <label key={a} className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/15 px-2 py-1.5 text-sm hover:bg-white/8 xl:justify-center xl:border-0 xl:p-1">
                     <input type="checkbox" name="perm" value={k} checked={checked.has(k)} onChange={() => toggle(k)} className="checkbox" />
-                    <span className="md:sr-only">{ACTION_LABELS[a]}</span>
+                    <span className="xl:sr-only">{ACTION_LABELS[a]}</span>
                   </label>
                 );
               })}
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted md:justify-center">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted xl:justify-center">
                 <input type="checkbox" checked={allOn} onChange={() => toggleRow(keys, !allOn)} className="checkbox" aria-label={`Tout cocher : ${m.label}`} />
-                <span className="md:sr-only">Tout</span>
+                <span className="xl:sr-only">Tout</span>
               </label>
             </fieldset>
           );

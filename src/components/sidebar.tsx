@@ -62,12 +62,12 @@ export function Sidebar({ items, user, logo, logoutAction }: Props) {
   return (
     <>
       {/* ── Téléphone : barre supérieure ── */}
-      <header className="glass sticky top-0 z-30 flex items-center gap-3 rounded-none border-x-0 border-t-0 px-4 py-2 md:hidden">
+      <header className="glass-solid sticky top-0 z-30 flex items-center gap-3 rounded-none border-x-0 border-t-0 px-4 py-2 md:hidden">
         {logo}<span className="font-semibold">CMD Pro</span>
       </header>
 
       {/* ── Téléphone : barre de navigation basse ── */}
-      <nav aria-label="Navigation rapide" className="glass-strong fixed inset-x-3 bottom-3 z-30 grid grid-cols-4 gap-1 rounded-3xl p-1.5 md:hidden"
+      <nav aria-label="Navigation rapide" className="glass-solid fixed inset-x-3 bottom-3 z-30 grid grid-cols-4 gap-1 rounded-3xl p-1.5 md:hidden"
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
         {bottom.map((i) => {
           const Icon = iconOf(i.icon); const on = active(i.href);
@@ -88,7 +88,7 @@ export function Sidebar({ items, user, logo, logoutAction }: Props) {
 
       {/* ── Barre latérale : tiroir (téléphone), rail d'icônes (tablette), complète ou repliée (ordinateur) ── */}
       <aside id="cmdpro-sidebar" aria-label="Navigation principale"
-        className={`glass fixed inset-y-0 left-0 z-50 flex flex-col gap-3 rounded-none border-y-0 border-l-0 p-3 transition-[transform,width] duration-200
+        className={`${drawer ? "glass-solid" : "glass"} fixed inset-y-0 left-0 z-50 flex flex-col gap-3 rounded-none border-y-0 border-l-0 p-3 transition-[transform,width] duration-200
           md:sticky md:top-0 md:h-dvh md:translate-x-0 md:rounded-r-3xl
           ${drawer ? "w-72 translate-x-0 md:fixed" : "w-72 -translate-x-full md:w-[76px]"} ${!drawer && (collapsed ? "lg:w-[76px]" : "lg:w-72")}`}>
         <div className="flex items-center justify-between gap-2 px-1 pt-1">

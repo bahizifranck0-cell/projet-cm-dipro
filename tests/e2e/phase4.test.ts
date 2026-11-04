@@ -108,11 +108,11 @@ test("Navigation adaptée à chaque écran", async (t) => {
     await side.getByRole("link", { name: "Journal d'audit" }).click();
     await page.waitForURL(/journal/);
     await side.getByRole("button", { name: "Replier le menu" }).click();
-    assert.ok((await side.boundingBox())!.width <= 80);
+    await page.waitForFunction(() => document.getElementById("cmdpro-sidebar")!.getBoundingClientRect().width <= 80); // après l'animation
     await page.reload();
     await page.waitForFunction(() => document.getElementById("cmdpro-sidebar")!.getBoundingClientRect().width <= 80);
     await side.getByRole("button", { name: "Déplier le menu" }).click();
-    assert.ok((await side.boundingBox())!.width >= 260);
+    await page.waitForFunction(() => document.getElementById("cmdpro-sidebar")!.getBoundingClientRect().width >= 260);
   });
 });
 
