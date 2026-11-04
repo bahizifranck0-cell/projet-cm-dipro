@@ -20,8 +20,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
         actions={can(actor, "hr", "create") && <Link href="/personnel/nouveau" className={buttonClass()}><Plus className="size-4" />Nouvel employé</Link>} />
       {cree && <p role="status" className="mb-4 rounded-xl border border-success/50 bg-success/10 px-3 py-2 text-sm text-[#b5f5d8]">Employé enregistré.</p>}
       <form className="mb-4 flex gap-2" role="search">
-        <input name="q" defaultValue={q} placeholder="Rechercher : nom, prénom, matricule" className="field max-w-md" aria-label="Rechercher un employé" />
-        <button className={buttonClass("secondary")}><Search className="size-4" />Rechercher</button>
+        <input name="q" defaultValue={q} placeholder="Rechercher : nom, prénom, matricule" className="field min-w-0 max-w-md" aria-label="Rechercher un employé" />
+        <button className={buttonClass("secondary", "shrink-0")} aria-label="Rechercher"><Search className="size-4" /><span className="hidden sm:inline">Rechercher</span></button>
       </form>
       {list.length === 0 ? (
         <EmptyState title={q ? "Aucun employé trouvé." : "Aucun employé enregistré."} />
