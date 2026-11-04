@@ -12,7 +12,7 @@ export default async function Page() {
   return (
     <>
       <PageHeader title="Rôles et permissions" subtitle="Cochez ce que chaque rôle peut faire, module par module." actions={<NewRole />} />
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {roles.map((r) => (
           <Link key={r.id} href={`/parametres/roles/${r.id}`} className="glass group flex items-center gap-4 rounded-2xl p-4 hover:border-white/35">
             <div className="min-w-0 flex-1">

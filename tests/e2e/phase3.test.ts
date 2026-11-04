@@ -210,6 +210,22 @@ test("Phase 3 — parcours complet", async (t) => {
     await agent.getByText("Ce compte est désactivé. Contactez l'administrateur.").waitFor();
   });
 
+  await t.test("pages d'administration sur téléphone : pas de débordement", async () => {
+    const m = await newPage({ width: 390, height: 844 });
+    await loginAs(m, ADMIN.u, ADMIN.p);
+    await m.waitForURL(`${BASE}/`);
+    const roleUrl = (await admin.goto(`${BASE}/parametres/roles`), await admin.getByRole("link", { name: new RegExp(ROLE) }).getAttribute("href"));
+    for (const p of ["/utilisateurs", "/utilisateurs/nouveau", "/parametres/roles", roleUrl!, "/parametres/journal", new URL(agentUserUrl).pathname, "/personnel/nouveau"]) {
+      await m.goto(`${BASE}${p}`);
+      const overflow = await m.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      assert.ok(overflow <= 0, `${p} déborde de ${overflow}px`);
+    }
+    await m.goto(`${BASE}${roleUrl}`);
+    await m.screenshot({ path: path.join(SHOTS, "05-mobile-permissions.png"), fullPage: true });
+    await m.goto(`${BASE}${new URL(agentUserUrl).pathname}`);
+    await m.screenshot({ path: path.join(SHOTS, "06-mobile-fiche.png"), fullPage: true });
+  });
+
   await t.test("le journal d'audit trace toutes ces opérations", async () => {
     await admin.goto(`${BASE}/parametres/journal`);
     for (const txt of ["Permissions modifiées", "Désactivation", "Mot de passe modifié", "Échec de connexion", "Connexion refusée (compte désactivé)"])

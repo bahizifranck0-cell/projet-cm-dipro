@@ -26,12 +26,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
       {list.length === 0 ? (
         <EmptyState title={q ? "Aucun employé trouvé." : "Aucun employé enregistré."} />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {list.map((e) => {
             const name = `${e.firstName} ${e.lastName}`;
             const [label, tone] = STATUS[e.status];
             return (
-              <Card key={e.id} className="flex items-center gap-4 !p-4">
+              <Card key={e.id} className="flex min-w-0 items-center gap-4 !p-4">
                 <Avatar employeeId={e.id} hasPhoto={!!e.photoPath} name={name} size={52} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold">{e.lastName.toUpperCase()} {e.postName ?? ""} {e.firstName}</p>

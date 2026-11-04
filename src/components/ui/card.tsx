@@ -33,5 +33,5 @@ const badgeTones = {
   amber: "bg-warning/15 text-[#ffe7b3] border-warning/40",
 };
 export function Badge({ tone = "gray", children }: { tone?: keyof typeof badgeTones; children: ReactNode }) {
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${badgeTones[tone]}`}>{children}</span>;
+  return <span className={`inline-block max-w-full truncate rounded-full border px-2.5 py-0.5 text-xs font-medium ${badgeTones[tone]}`}>{children}</span>;
 }
