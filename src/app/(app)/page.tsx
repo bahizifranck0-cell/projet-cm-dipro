@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { requireActor } from "@/server/auth/current";
 import { navFor } from "@/components/nav";
-import { Card, PageHeader } from "@/components/ui/card";
+import { Card, PageHeader, StatCard } from "@/components/ui/card";
+import { can } from "@/server/auth/actor";
+import { receptionStats } from "@/server/services/reception";
+import { Clock, Stethoscope, Users } from "lucide-react";
 
 function greeting() {
   const h = Number(new Intl.DateTimeFormat("fr-FR", { hour: "numeric", hour12: false, timeZone: "Africa/Lubumbashi" }).format(new Date()));
@@ -11,9 +14,17 @@ function greeting() {
 export default async function Dashboard() {
   const actor = await requireActor();
   const shortcuts = navFor(actor).filter((i) => i.href !== "/");
+  const stats = can(actor, "reception", "view") ? await receptionStats() : null;
   return (
     <>
       <PageHeader title={`${greeting()}, ${actor.displayName}`} subtitle={actor.roleName} />
+      {stats && (
+        <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
+          <StatCard label="Arrivées aujourd'hui" value={stats.arrivals} icon={<Users className="size-4" />} />
+          <StatCard label="En attente d'orientation" value={stats.waiting} tone="amber" icon={<Clock className="size-4" />} />
+          <StatCard label="Orientés ou en consultation" value={stats.oriented + stats.inConsultation} tone="green" icon={<Stethoscope className="size-4" />} />
+        </div>
+      )}
       <Card>
         <h2 className="font-semibold">Accès rapides</h2>
         {shortcuts.length ? (

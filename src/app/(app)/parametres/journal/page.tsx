@@ -13,7 +13,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
   const { module, avant } = await searchParams;
   const cursor = avant && /^\d+$/.test(avant) ? BigInt(avant) : undefined;
   const rows = await listAudit({ module: module || undefined, take: PAGE, cursor });
-  const modules = ["auth", "users", "roles", "hr", "settings"];
+  const modules = ["auth", "users", "roles", "patients", "reception", "hr", "settings"];
   return (
     <>
       <PageHeader title="Journal d'audit" subtitle="Toutes les opérations importantes. Ce journal ne peut être ni modifié ni effacé." />

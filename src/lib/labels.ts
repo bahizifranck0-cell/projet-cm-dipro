@@ -5,7 +5,7 @@ export const ACTION_TEXT: Record<string, string> = {
   LOGIN_REFUSED_DISABLED: "Connexion refusée (compte désactivé)", PASSWORD_CHANGED: "Mot de passe modifié", PASSWORD_RESET: "Mot de passe réinitialisé",
   CREATE: "Création", UPDATE: "Modification", DELETE: "Suppression", ACTIVATE: "Activation", DEACTIVATE: "Désactivation",
   PERMISSIONS_UPDATE: "Permissions modifiées", PHOTO_UPDATE: "Photo modifiée", CREATE_SUPER_ADMIN: "Création du Super Administrateur",
-  VALIDATE: "Validation", CANCEL: "Annulation",
+  VALIDATE: "Validation", CANCEL: "Annulation", ARRIVAL: "Arrivée enregistrée", ORIENT: "Orientation",
 };
 const MODULE_TEXT: Record<string, string> = Object.fromEntries([
   ...MODULES.map((m) => [m.key, m.label]), ["auth", "Connexion"], ["users", "Utilisateurs"], ["roles", "Rôles"],

@@ -471,6 +471,9 @@ model Patient {
   phone         String?
   address       String?
   extraFields   Json?
+  // Champs de recherche normalisés (sans accents, minuscules ; 9 derniers chiffres du téléphone)
+  searchName    String    @default("")
+  phoneDigits   String?
   createdById   String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -496,6 +499,7 @@ model Patient {
 
   @@index([lastName, firstName])
   @@index([phone])
+  @@index([phoneDigits])
 }
 
 // Passage du patient à l'hôpital (point d'entrée de chaque épisode de soins).
@@ -505,7 +509,9 @@ model Visit {
   arrivedAt              DateTime    @default(now())
   reason                 String?
   status                 VisitStatus @default(WAITING)
+  priority               Boolean     @default(false) // urgence signalée à l'accueil
   registeredById         String?
+  cancelReason           String?
   orientedToDepartmentId String?
   orientedToDoctorId     String?
   closedAt               DateTime?
