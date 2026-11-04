@@ -122,7 +122,11 @@ test("Phase 12 — documents et rapports", async (t) => {
   await t.test("module Documents : seulement les types autorisés", async () => {
     await g.goto(`${BASE}/documents`);
     await g.getByText(/Rapport d'activité/).first().waitFor();
-    assert.equal(await g.locator("select[name=type] option", { hasText: "Bulletin de paie" }).count(), 0, "pas de bulletins sans droit RH");
+    assert.equal(await g.locator("select[name=type] option", { hasText: "Bulletin de paie" }).count(), 1, "le DG a « Personnel — Voir » dans la proposition par défaut");
+    const l = await openAs(browser, errors, labm.username);
+    await l.goto(`${BASE}/documents`);
+    assert.equal(await l.locator("select[name=type] option", { hasText: "Bulletin de paie" }).count(), 0, "pas de bulletins sans droit RH");
+    await l.getByRole("heading", { name: "Documents" }).waitFor();
   });
   await t.test("aucune erreur dans la console", () => assert.deepEqual(errors, []));
 });

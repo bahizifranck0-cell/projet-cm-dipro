@@ -31,10 +31,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
     </div>
     <Card>{j.payments.length === 0 ? <p className="text-sm text-muted">Aucun encaissement.</p> : (
       <ul className="divide-y divide-white/10 text-sm">{j.payments.map((p) => (
-        <li key={p.id} className="grid gap-1 py-2 sm:grid-cols-[150px_120px_1fr_120px_140px]">
+        <li key={p.id} className="grid gap-1 py-2 xl:grid-cols-[150px_120px_minmax(0,1fr)_110px_130px]">
           <span className="text-muted">{fmtDateTime(p.receivedAt)}</span><span>{p.number}</span>
           <span>{p.invoice.number} — {p.invoice.patient ? displayName(p.invoice.patient) : p.invoice.sale?.customerName ?? "Vente"}{p.reversalOfId && <> <Badge tone="red">Extourne</Badge></>}</span>
-          <span className="text-muted">{j.cashierName[p.cashierId]}</span><span className="text-right font-semibold">{fmtMoney(p.amount, p.currency)}</span>
+          <span className="text-muted">{j.cashierName[p.cashierId]}</span><span className="font-semibold xl:text-right">{fmtMoney(p.amount, p.currency)}</span>
         </li>))}</ul>)}</Card>
     {can(actor, "finance", "view") && <Card>
       <h2 className="mb-3 text-lg font-semibold">Réconciliation mensuelle</h2>
@@ -45,7 +45,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
         <Field label="Remarques" name="notes"><Input name="notes" /></Field></div>
         <p className="text-xs text-muted">Le montant attendu est calculé : encaissements en espèces du mois − dépenses payées.</p></SimpleForm>}
       <ul className="mt-4 divide-y divide-white/10 text-sm">{recs.map((r) => (
-        <li key={r.id} className="flex flex-wrap items-center gap-3 py-2"><span className="min-w-0 flex-1">{r.period} · {r.currency} · attendu {fmtMoney(r.expectedAmount, r.currency)} · compté {fmtMoney(r.countedAmount, r.currency)} · <strong>écart {fmtMoney(r.difference, r.currency)}</strong></span>
+        <li key={r.id} className="flex flex-wrap items-center gap-3 py-2"><span className="min-w-0 flex-1 break-words">{r.period} · {r.currency} · attendu {fmtMoney(r.expectedAmount, r.currency)} · compté {fmtMoney(r.countedAmount, r.currency)} · <strong>écart {fmtMoney(r.difference, r.currency)}</strong></span>
           <Badge tone={r.status === "APPROVED" ? "green" : "amber"}>{r.status === "APPROVED" ? "Validée" : "À valider"}</Badge>
           {r.status === "PENDING" && can(actor, "finance", "validate") && <ActionButton action={A.approveReconciliationAction.bind(null, r.id)} label="Valider" />}</li>))}</ul>
     </Card>}

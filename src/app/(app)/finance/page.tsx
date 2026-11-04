@@ -32,9 +32,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
       <h2 className="mb-3 text-lg font-semibold">Journal des opérations</h2>
       {ledger.length === 0 ? <p className="text-sm text-muted">Aucune opération sur la période.</p> : (
         <ul className="divide-y divide-white/10 text-sm">{ledger.map((l) => (
-          <li key={String(l.id)} className="grid gap-1 py-2 sm:grid-cols-[150px_100px_1fr_140px]">
+          <li key={String(l.id)} className="grid gap-1 py-2 lg:grid-cols-[150px_100px_minmax(0,1fr)_140px]">
             <span className="text-muted">{fmtDateTime(l.at)}</span><span>{TYPE[l.type]}</span><span>{l.description}{l.department && <span className="text-muted"> · {l.department.name}</span>}</span>
-            <span className={`text-right font-semibold ${l.amount.lt(0) ? "text-[#ffd0d5]" : "text-success"}`}>{fmtMoney(l.amount, l.currency)}</span>
+            <span className={`font-semibold lg:text-right ${l.amount.lt(0) ? "text-[#ffd0d5]" : "text-success"}`}>{fmtMoney(l.amount, l.currency)}</span>
           </li>))}</ul>
       )}
       <p className="mt-3 text-xs text-muted">Journal en ajout seul : une correction se fait par extourne, jamais par suppression.</p>
