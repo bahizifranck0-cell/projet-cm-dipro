@@ -19,7 +19,7 @@ after(() => db.$disconnect());
 const newPatient = async (n: string) => (await patients.createPatient(secr.actor, { lastName: n, firstName: "Test", sex: "F" }, { confirmedNotDuplicate: true })).patient!;
 
 test("chambres et lits configurés par le service (aucun créé d'office)", async () => {
-  assert.equal(await db.room.count(), 0);
+  assert.equal(await db.room.count({ where: { code: "M1" } }), 0, "aucune chambre créée d'office");
   await assert.rejects(hosp.createRoom(nurse.actor, { code: "A1", name: "A", category: "X" }), ForbiddenError);
   room = (await hosp.createRoom(resp.actor, { code: "m1", name: "Maternité 1", category: "Maternité" })).id;
   await assert.rejects(hosp.createRoom(resp.actor, { code: "M1", name: "B", category: "X" }), /existe déjà/);

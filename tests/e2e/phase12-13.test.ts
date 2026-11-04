@@ -112,7 +112,7 @@ test("Phase 12 — documents et rapports", async (t) => {
   await t.test("rapports calculés et export PDF", async () => {
     await g.goto(`${BASE}/rapports`);
     await g.getByRole("heading", { name: "Activités médicales" }).waitFor();
-    await g.getByText(`Dr ${doc.last}`).waitFor();
+    await g.getByText(`Dr ${doc.last} Moise`, { exact: true }).waitFor();
     const href = await g.getByRole("link", { name: "Exporter en PDF" }).getAttribute("href");
     const res = await g.request.get(`${BASE}${href}`);
     assert.equal(res.status(), 200); assert.equal(res.headers()["content-type"], "application/pdf");

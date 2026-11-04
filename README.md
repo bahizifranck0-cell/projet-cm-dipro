@@ -53,6 +53,17 @@ Variables d'environnement :
 
 Aucune donnée fictive n'est jamais créée dans la base réelle. Aucun mot de passe par défaut n'existe.
 
+## Instance de démonstration (base séparée)
+
+```bash
+createdb cmdpro_demo                                   # le nom DOIT contenir « demo »
+DATABASE_URL=…/cmdpro_demo npm run db:migrate
+DATABASE_URL=…/cmdpro_demo CMDPRO_DEMO=1 npm run demo:seed
+DATABASE_URL=…/cmdpro_demo CMDPRO_DEMO=1 npm start -- -p 3001
+```
+
+Sur l'instance réelle, renseigner `CMDPRO_DEMO_URL` pour afficher le lien vers la démo. Les comptes de démonstration n'existent que dans la base de démo.
+
 ## Tests
 
 ```bash
@@ -71,3 +82,4 @@ Les scripts de test refusent toute base dont le nom ne se termine pas par `_test
 - `docs/PHASE-03-ACCES.md` — connexion, utilisateurs, rôles et permissions
 - `docs/PHASE-04-DESIGN.md` — design system, navigation responsive, accessibilité
 - `docs/PHASE-05-PATIENTS.md` — dossiers patients, anti-doublons, réception
+- `docs/RAPPORT-FINAL.md` — **rapport final : modules, sécurité, tests, points à confirmer**
