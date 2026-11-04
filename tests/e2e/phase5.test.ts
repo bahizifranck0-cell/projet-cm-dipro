@@ -63,7 +63,7 @@ test("Phase 5 — secrétariat et réception", async (t) => {
     await secr.waitForURL(/\/patients\/c[a-z0-9]+\?cree=1/);
     patientUrl = secr.url().split("?")[0];
     await secr.getByRole("heading", { name: new RegExp(`${LAST} KASEREKA Élodie`) }).waitFor();
-    await secr.getByText(/^P-\d{4}-\d{5}$/).waitFor();
+    await secr.getByText(/^P-\d{4}-\d{5}$/).first().waitFor();
     await secr.reload();
     await secr.getByText("0991 234 567").first().waitFor(); // retrouvé après rechargement
     assert.ok(await overflowPx(secr) <= 0);
@@ -112,8 +112,8 @@ test("Phase 5 — secrétariat et réception", async (t) => {
     await dlg.getByLabel("Situation urgente").check();
     assert.deepEqual(await axeViolations(recep), []);
     await dlg.getByRole("button", { name: "Enregistrer" }).click();
-    await recep.getByRole("status").filter({ hasText: "Arrivée enregistrée" }).waitFor();
-    await dlg.waitFor({ state: "hidden" });
+    await recep.waitForURL(/arrivee=1/);
+    await recep.getByText("Arrivée enregistrée : le patient est dans la file d'attente.").waitFor();
     await recep.getByText("Passage en cours : En attente d'orientation").waitFor();
     assert.equal(await recep.getByRole("button", { name: "Enregistrer l'arrivée" }).count(), 0, "pas de second passage");
     await recep.goto(`${BASE}/reception`);

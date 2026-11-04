@@ -16,7 +16,7 @@ export const metadata = { title: "Dossier patient" };
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeZone: "UTC" });
 const tone = (s: string) => (s === "CANCELLED" ? "red" : s === "CLOSED" ? "gray" : s === "WAITING" ? "amber" : "blue") as "red" | "gray" | "amber" | "blue";
 
-export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cree?: string; modifie?: string }> }) {
+export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cree?: string; modifie?: string; arrivee?: string }> }) {
   const actor = await requirePage("patients", "view");
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   const rec = await getPatientRecord(actor, id);
@@ -62,6 +62,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <Link href="/patients" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowLeft className="size-4" />Patients</Link>
       {sp.cree && <Alert tone="success">Dossier créé.</Alert>}
       {sp.modifie && <Alert tone="success">Modifications enregistrées.</Alert>}
+      {sp.arrivee && open && <Alert tone="success">Arrivée enregistrée : le patient est dans la file d'attente. <Link href="/reception" className="font-semibold underline">Voir la file</Link></Alert>}
       <Card>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">

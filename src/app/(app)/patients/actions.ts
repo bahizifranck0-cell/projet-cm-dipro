@@ -33,13 +33,15 @@ export async function updatePatientAction(id: string, _: ActionState, fd: FormDa
 }
 
 export async function registerArrivalAction(patientId: string, _: ActionState, fd: FormData): Promise<ActionState> {
-  return runAction(async () => {
+  const res = await runAction(async () => {
     await reception.registerArrival(await actionActor(), patientId, {
       reason: str(fd, "reason"), priority: fd.get("priority") === "on", departmentId: str(fd, "departmentId"), doctorId: str(fd, "doctorId"),
     });
-    revalidatePath(`/patients/${patientId}`); revalidatePath("/reception");
-    return "Arrivée enregistrée : le patient est dans la file d'attente.";
+    revalidatePath("/reception");
   });
+  // Le bouton disparaît une fois le passage ouvert : la confirmation est affichée par la page.
+  if (res?.ok) redirect(`/patients/${patientId}?arrivee=1`);
+  return res;
 }
 
 export async function orientVisitAction(visitId: string, _: ActionState, fd: FormData): Promise<ActionState> {
