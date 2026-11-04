@@ -67,14 +67,14 @@ export function Sidebar({ items, user, logo, logoutAction }: Props) {
       </header>
 
       {/* ── Téléphone : barre de navigation basse ── */}
-      <nav aria-label="Navigation rapide" className="glass-solid fixed inset-x-3 bottom-3 z-30 grid grid-cols-4 gap-1 rounded-3xl p-1.5 md:hidden"
-        style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
+      <nav aria-label="Navigation rapide" className="glass-solid fixed inset-x-3 bottom-3 z-30 grid gap-1 rounded-3xl p-1.5 md:hidden"
+        style={{ marginBottom: "env(safe-area-inset-bottom)", gridTemplateColumns: `repeat(${bottom.length + 1}, minmax(0, 1fr))` }}>
         {bottom.map((i) => {
           const Icon = iconOf(i.icon); const on = active(i.href);
           return (
             <Link key={i.href} href={i.href} aria-current={on ? "page" : undefined}
               className={`relative flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] font-medium ${on ? "border border-white/35 bg-white/15 text-white" : "text-ink/80"}`}>
-              <Icon className="size-5" aria-hidden /><span className="max-w-full truncate px-1">{i.label}</span><Badge n={i.badge} dot />
+              <Icon className="size-5" aria-hidden /><span className="max-w-full truncate px-1">{i.short ?? i.label}</span><Badge n={i.badge} dot />
             </Link>
           );
         })}

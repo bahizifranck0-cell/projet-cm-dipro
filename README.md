@@ -54,3 +54,4 @@ Les scripts de test refusent toute base dont le nom ne se termine pas par `_test
 - `docs/PHASE-01-AUDIT.md` — audit initial et décisions
 - `docs/PHASE-02-ARCHITECTURE.md` — architecture et modèle de données
 - `docs/PHASE-03-ACCES.md` — connexion, utilisateurs, rôles et permissions
+- `docs/PHASE-04-DESIGN.md` — design system, navigation responsive, accessibilité

@@ -2,12 +2,12 @@ import type { Actor } from "@/server/auth/actor";
 import { can } from "@/server/auth/actor";
 
 /** badge : nombre d'éléments non traités (alimenté par les notifications, Phase 13). Jamais de valeur fictive. */
-export type NavItem = { href: string; label: string; icon: string; section: "main" | "admin"; badge?: number };
+export type NavItem = { href: string; label: string; short?: string; icon: string; section: "main" | "admin"; badge?: number };
 
 /** Seuls les modules réellement disponibles et autorisés apparaissent. */
 export function navFor(actor: Actor): NavItem[] {
   const items: (NavItem & { show: boolean })[] = [
-    { href: "/", label: "Tableau de bord", icon: "LayoutDashboard", section: "main", show: can(actor, "dashboard", "view") },
+    { href: "/", label: "Tableau de bord", short: "Accueil", icon: "LayoutDashboard", section: "main", show: can(actor, "dashboard", "view") },
     { href: "/personnel", label: "Personnel", icon: "IdCard", section: "main", show: can(actor, "hr", "view") },
     { href: "/utilisateurs", label: "Utilisateurs", icon: "Users", section: "admin", show: actor.isSuperAdmin },
     { href: "/parametres/roles", label: "Rôles et permissions", icon: "ShieldCheck", section: "admin", show: actor.isSuperAdmin },
