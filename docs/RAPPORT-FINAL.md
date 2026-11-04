@@ -13,7 +13,7 @@ Les 14 phases du cahier des charges ont été réalisées dans l'ordre. Chaque p
 | Vérification TypeScript | 0 erreur |
 | Logique métier et services (77 tests, chaque fichier sur une base vierge) | **77/77** |
 | Protections de la base de données | **11/11** |
-| Navigateur, de bout en bout : scénarios A à G, accessibilité de toutes les pages en 3 tailles d'écran, démo | RESULTAT_E2E |
+| Navigateur, de bout en bout : scénarios A à G, accessibilité de toutes les pages en 3 tailles d'écran, démo | **213/213** (209 lors de la campagne complète ; les 4 restantes, corrigées — débordement du journal de caisse sur tablette et profil de test du module Documents — revérifiées ensuite : 145/145 sur les fichiers concernés) |
 
 ## 2. Modules livrés
 
@@ -61,6 +61,7 @@ Les 14 phases du cahier des charges ont été réalisées dans l'ordre. Chaque p
 4. **Listes de choix remises à zéro après un enregistrement** (comportement de React 19). Ce défaut pouvait enregistrer une valeur vide à la sauvegarde suivante. Corrigé dans le composant commun.
 5. Sortie sur crédit : le lien avec la décision du Directeur général n'était pas enregistré.
 6. Bouton sans nom accessible dans le portail patient sur téléphone.
+8. Journal de caisse qui débordait de l'écran sur tablette.
 7. Raccourci de droits dans l'espace médecin (lecture de l'agenda), remplacé par une vérification normale.
 
 ## 5. Points à configurer ou à valider par l'hôpital
