@@ -1,12 +1,13 @@
 "use client";
+import { useActionToast } from "@/components/ui/toast";
 import Link from "next/link";
-import { useActionState } from "react";
+
 import { changePasswordAction } from "./actions";
 import { Field, FormMessage, Input } from "@/components/ui/form";
 import { SubmitButton, buttonClass } from "@/components/ui/button";
 
 export function PasswordForm({ forced }: { forced: boolean }) {
-  const [state, action] = useActionState(changePasswordAction, undefined);
+  const [state, action] = useActionToast(changePasswordAction, undefined);
   if (state?.ok)
     return (<div className="space-y-4"><FormMessage state={state} /><Link href="/" className={buttonClass()}>Continuer</Link></div>);
   return (

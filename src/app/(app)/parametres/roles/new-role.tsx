@@ -1,5 +1,6 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useActionToast } from "@/components/ui/toast";
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import { createRoleAction } from "./actions";
 import { Field, FormMessage, Input } from "@/components/ui/form";
@@ -7,7 +8,7 @@ import { Button, SubmitButton } from "@/components/ui/button";
 
 export function NewRole() {
   const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(createRoleAction, undefined);
+  const [state, action] = useActionToast(createRoleAction, undefined);
   if (!open) return <Button onClick={() => setOpen(true)}><Plus className="size-4" />Ajouter un rôle</Button>;
   return (
     <form action={action} className="glass w-full space-y-3 rounded-2xl p-4 sm:w-96">

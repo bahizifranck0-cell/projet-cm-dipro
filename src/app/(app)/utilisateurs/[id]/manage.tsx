@@ -1,5 +1,6 @@
 "use client";
-import { useActionState } from "react";
+import { useActionToast } from "@/components/ui/toast";
+
 import { resetPasswordAction, setStatusAction, updateAssignmentAction } from "../actions";
 import { Field, FormMessage, Input, Select } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/button";
@@ -9,9 +10,9 @@ type Opt = { id: string; name: string };
 type Props = { id: string; roleId: string; departmentId: string | null; status: "ACTIVE" | "DISABLED"; isSuperAdmin: boolean; isSelf: boolean; roles: Opt[]; departments: Opt[] };
 
 export function ManageUser(p: Props) {
-  const [aState, assign] = useActionState(updateAssignmentAction.bind(null, p.id), undefined);
-  const [sState, toggle] = useActionState(setStatusAction.bind(null, p.id, p.status === "ACTIVE" ? "DISABLED" : "ACTIVE"), undefined);
-  const [pState, reset] = useActionState(resetPasswordAction.bind(null, p.id), undefined);
+  const [aState, assign] = useActionToast(updateAssignmentAction.bind(null, p.id), undefined);
+  const [sState, toggle] = useActionToast(setStatusAction.bind(null, p.id, p.status === "ACTIVE" ? "DISABLED" : "ACTIVE"), undefined);
+  const [pState, reset] = useActionToast(resetPasswordAction.bind(null, p.id), undefined);
   return (
     <div className="grid gap-5 lg:grid-cols-3">
       <form action={assign} className="space-y-3">

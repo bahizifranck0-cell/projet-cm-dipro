@@ -1,14 +1,15 @@
 "use client";
-import { useActionState } from "react";
+import { useActionToast } from "@/components/ui/toast";
+
 import { deleteRoleAction, setRoleActiveAction, updateRoleAction } from "../actions";
 import { Field, FormMessage, Input } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/button";
 import { ConfirmSubmit } from "@/components/ui/confirm";
 
 export function RoleForms({ id, name, description, active, deletable, locked }: { id: string; name: string; description: string | null; active: boolean; deletable: boolean; locked: boolean }) {
-  const [uState, update] = useActionState(updateRoleAction.bind(null, id), undefined);
-  const [aState, toggle] = useActionState(setRoleActiveAction.bind(null, id, !active), undefined);
-  const [dState, del] = useActionState(deleteRoleAction.bind(null, id), undefined);
+  const [uState, update] = useActionToast(updateRoleAction.bind(null, id), undefined);
+  const [aState, toggle] = useActionToast(setRoleActiveAction.bind(null, id, !active), undefined);
+  const [dState, del] = useActionToast(deleteRoleAction.bind(null, id), undefined);
   return (
     <div className="grid gap-5 md:grid-cols-2">
       <form action={update} className="space-y-3">

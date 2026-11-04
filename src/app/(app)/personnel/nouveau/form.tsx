@@ -1,11 +1,12 @@
 "use client";
-import { useActionState } from "react";
+import { useActionToast } from "@/components/ui/toast";
+
 import { createEmployeeAction } from "../actions";
 import { Field, FormMessage, Input, Select } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/button";
 
 export function EmployeeForm({ departments }: { departments: { id: string; name: string }[] }) {
-  const [state, action] = useActionState(createEmployeeAction, undefined);
+  const [state, action] = useActionToast(createEmployeeAction, undefined);
   return (
     <form action={action} className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-3">

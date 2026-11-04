@@ -1,5 +1,6 @@
 "use client";
-import { useActionState, useEffect, useState } from "react";
+import { useActionToast } from "@/components/ui/toast";
+import { useEffect, useState } from "react";
 import { LogIn, Send, XCircle } from "lucide-react";
 import { cancelVisitAction, orientVisitAction, registerArrivalAction } from "@/app/(app)/patients/actions";
 import { Dialog } from "@/components/ui/dialog";
@@ -23,7 +24,7 @@ function Targets({ departments, doctors, state, initial }: { departments: Opt[];
 
 export function ArrivalButton({ patientId, departments, doctors }: { patientId: string; departments: Opt[]; doctors: Opt[] }) {
   const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(registerArrivalAction.bind(null, patientId), undefined);
+  const [state, action] = useActionToast(registerArrivalAction.bind(null, patientId), undefined);
   useEffect(() => { if (state?.ok) setOpen(false); }, [state]);
   return (
     <>
@@ -44,7 +45,7 @@ export function ArrivalButton({ patientId, departments, doctors }: { patientId: 
 
 export function OrientButton({ visitId, patientName, departments, doctors, initial }: { visitId: string; patientName: string; departments: Opt[]; doctors: Opt[]; initial: { departmentId: string | null; doctorId: string | null } }) {
   const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(orientVisitAction.bind(null, visitId), undefined);
+  const [state, action] = useActionToast(orientVisitAction.bind(null, visitId), undefined);
   useEffect(() => { if (state?.ok) setOpen(false); }, [state]);
   return (
     <>
@@ -62,7 +63,7 @@ export function OrientButton({ visitId, patientName, departments, doctors, initi
 
 export function CancelVisitButton({ visitId, patientName }: { visitId: string; patientName: string }) {
   const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(cancelVisitAction.bind(null, visitId), undefined);
+  const [state, action] = useActionToast(cancelVisitAction.bind(null, visitId), undefined);
   useEffect(() => { if (state?.ok) setOpen(false); }, [state]);
   return (
     <>

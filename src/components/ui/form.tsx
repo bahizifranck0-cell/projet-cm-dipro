@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, type InputHTMLAttributes, type ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { type InputHTMLAttributes, type ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
 import { AlertCircle } from "lucide-react";
-import { useToast } from "./toast";
 import type { ActionState } from "@/server/actions/result";
 
 export function Field({ label, name, hint, state, children }: { label: string; name: string; hint?: string; state?: ActionState; children: ReactNode }) {
@@ -27,8 +26,6 @@ export function Textarea({ state, ...p }: TextareaHTMLAttributes<HTMLTextAreaEle
 
 /** Message global de résultat d'un formulaire (erreur hors champ, ou succès). */
 export function FormMessage({ state }: { state?: ActionState }) {
-  const toast = useToast();
-  useEffect(() => { if (state?.ok && state.message) toast(state.message); }, [state, toast]);
   if (!state) return null;
   if (state.error && !state.field)
     return <p role="alert" className="flex items-start gap-2 rounded-xl border border-danger/50 bg-danger/10 px-3 py-2 text-sm text-[#ffd0d5]"><AlertCircle className="mt-0.5 size-4 shrink-0" />{state.error}</p>;

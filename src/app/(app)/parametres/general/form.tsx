@@ -1,11 +1,12 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useActionToast } from "@/components/ui/toast";
+import { useState } from "react";
 import { savePatientNumberAction } from "./actions";
 import { Field, FormMessage, Input } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/button";
 
 export function PatientNumberForm({ prefix, padding, withYear, canEdit }: { prefix: string; padding: number; withYear: boolean; canEdit: boolean }) {
-  const [state, action] = useActionState(savePatientNumberAction, undefined);
+  const [state, action] = useActionToast(savePatientNumberAction, undefined);
   const [p, setP] = useState(prefix), [n, setN] = useState(padding), [y, setY] = useState(withYear);
   const example = `${(p || "P").toUpperCase()}${y ? `-${new Date().getFullYear()}` : ""}-${"1".padStart(Math.min(Math.max(n || 5, 3), 8), "0")}`;
   return (

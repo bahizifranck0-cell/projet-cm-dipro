@@ -1,6 +1,7 @@
 "use client";
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, useActionState, useCallback, useContext, useState, type ReactNode } from "react";
 import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
+import type { ActionState } from "@/server/actions/result";
 
 type Tone = "success" | "error" | "info";
 type Toast = { id: number; tone: Tone; text: string };
@@ -35,3 +36,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 export const useToast = () => useContext(Ctx);
+
+/**
+ * Comme useActionState, mais la notification de réussite part dès la réponse du serveur :
+ * elle s'affiche même si le formulaire disparaît ensuite de la page (ex. élément retiré d'une liste).
+ */
+export function useActionToast(action: (state: ActionState, fd: FormData) => Promise<ActionState>, initial: ActionState = undefined) {
+  const toast = useToast();
+  return useActionState<ActionState, FormData>(async (prev, fd) => {
+    const r = await action(prev, fd);
+    if (r?.ok && r.message) toast(r.message);
+    return r;
+  }, initial);
+}

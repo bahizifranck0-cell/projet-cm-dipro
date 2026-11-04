@@ -1,11 +1,12 @@
 "use client";
-import { useActionState } from "react";
+import { useActionToast } from "@/components/ui/toast";
+
 import { createDepartmentAction, renameDepartmentAction, toggleDepartmentAction } from "./actions";
 import { FormMessage, Input } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/button";
 
 export function NewDepartment() {
-  const [state, action] = useActionState(createDepartmentAction, undefined);
+  const [state, action] = useActionToast(createDepartmentAction, undefined);
   return (
     <form action={action} className="space-y-2">
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -18,8 +19,8 @@ export function NewDepartment() {
 }
 
 export function DepartmentRow({ id, name, active, canEdit, counts }: { id: string; name: string; active: boolean; canEdit: boolean; counts: string }) {
-  const [rState, rename] = useActionState(renameDepartmentAction.bind(null, id), undefined);
-  const [tState, toggle] = useActionState(toggleDepartmentAction.bind(null, id, !active), undefined);
+  const [rState, rename] = useActionToast(renameDepartmentAction.bind(null, id), undefined);
+  const [tState, toggle] = useActionToast(toggleDepartmentAction.bind(null, id, !active), undefined);
   if (!canEdit) return <div className="py-3"><p className="font-medium">{name}</p><p className="text-xs text-muted">{counts}</p></div>;
   return (
     <div className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center">

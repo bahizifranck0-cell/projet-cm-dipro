@@ -1,5 +1,6 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useActionToast } from "@/components/ui/toast";
+import { useState } from "react";
 import { createUserAction } from "../actions";
 import { Field, FormMessage, Input, Select } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/button";
@@ -9,7 +10,7 @@ type Emp = { id: string; name: string; matricule: string; position: string; depa
 type Opt = { id: string; name: string };
 
 export function UserForm({ employees, roles, departments }: { employees: Emp[]; roles: Opt[]; departments: Opt[] }) {
-  const [state, action] = useActionState(createUserAction, undefined);
+  const [state, action] = useActionToast(createUserAction, undefined);
   const [empId, setEmpId] = useState("");
   const emp = employees.find((e) => e.id === empId);
   return (

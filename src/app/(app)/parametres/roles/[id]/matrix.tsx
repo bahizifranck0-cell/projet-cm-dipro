@@ -1,12 +1,13 @@
 "use client";
-import { useActionState, useMemo, useState } from "react";
+import { useActionToast } from "@/components/ui/toast";
+import { useMemo, useState } from "react";
 import { savePermissionsAction } from "../actions";
 import { FormMessage } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/button";
 import { ACTIONS, ACTION_LABELS, MODULES } from "@/server/auth/permissions";
 
 export function PermissionMatrix({ roleId, initial }: { roleId: string; initial: string[] }) {
-  const [state, action] = useActionState(savePermissionsAction.bind(null, roleId), undefined);
+  const [state, action] = useActionToast(savePermissionsAction.bind(null, roleId), undefined);
   const [checked, setChecked] = useState(() => new Set(initial));
   const dirty = useMemo(() => checked.size !== initial.length || initial.some((k) => !checked.has(k)), [checked, initial]);
   const toggle = (k: string) => setChecked((s) => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n; });
