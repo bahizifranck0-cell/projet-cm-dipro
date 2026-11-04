@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* ── Thème CMD Pro ─────────────────────────────────────────────
+   Couleurs tirées visuellement du logo (aucun code officiel communiqué).
+   Pour appliquer la charte officielle : modifier uniquement ce bloc. */
+:root {
+  --brand-950: #04112e;
+  --brand-900: #071a45;
+  --brand-800: #0b2a6b;
+  --brand-700: #0f3fa3;
+  --brand-600: #1557d6;
+  --brand-500: #1f74f0;
+  --brand-400: #4a98ff;
+  --brand-300: #8cc0ff;
+  --brand-100: #e3efff;
+
+  --glass-bg: rgba(255, 255, 255, 0.07);
+  --glass-bg-strong: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-border-strong: rgba(255, 255, 255, 0.32);
+  --text: #f3f7ff;
+  --text-muted: rgba(225, 235, 255, 0.72);
+  --danger: #ff6b7a;
+  --success: #3ddc97;
+  --warning: #ffc861;
+}
+
+@theme inline {
+  --color-brand-950: var(--brand-950);
+  --color-brand-900: var(--brand-900);
+  --color-brand-800: var(--brand-800);
+  --color-brand-700: var(--brand-700);
+  --color-brand-600: var(--brand-600);
+  --color-brand-500: var(--brand-500);
+  --color-brand-400: var(--brand-400);
+  --color-brand-300: var(--brand-300);
+  --color-brand-100: var(--brand-100);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html { color-scheme: dark; }
+body {
+  min-height: 100dvh;
+  color: var(--text);
+  background-color: var(--brand-950);
+  background-image:
+    radial-gradient(60rem 40rem at 85% -10%, rgba(31, 116, 240, 0.35), transparent 60%),
+    radial-gradient(50rem 35rem at -10% 110%, rgba(74, 152, 255, 0.22), transparent 60%),
+    linear-gradient(160deg, var(--brand-900), var(--brand-950) 60%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    box-shadow: 0 10px 30px rgba(0, 8, 30, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  .glass-strong {
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--glass-border-strong);
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+  }
+  .field {
+    @apply w-full rounded-xl px-3.5 py-2.5 text-[15px] text-ink outline-none transition;
+    background: rgba(4, 17, 46, 0.55);
+    border: 1px solid var(--glass-border);
+  }
+  .field::placeholder { color: rgba(225, 235, 255, 0.45); }
+  .field:focus { border-color: var(--brand-400); box-shadow: 0 0 0 3px rgba(74, 152, 255, 0.3); }
+  .field[aria-invalid="true"] { border-color: var(--danger); }
+  select.field option { background: var(--brand-900); color: var(--text); }
+}
+
+:focus-visible { outline: 2px solid var(--brand-300); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
