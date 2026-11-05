@@ -17,7 +17,8 @@
     "test": "./scripts/test-services.sh",
     "test:e2e": "./scripts/e2e.sh",
     "demo:seed": "tsx scripts/seed-demo.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "vercel-build": "bash scripts/vercel-build.sh"
   },
   "engines": {
     "node": ">=22"
