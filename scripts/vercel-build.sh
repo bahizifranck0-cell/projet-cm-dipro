@@ -4,6 +4,13 @@ set -euo pipefail
 
 # Noms acceptés : ceux du guide (DATABASE_URL / DIRECT_URL) ou ceux de l'intégration Supabase de Vercel.
 # Une base connectée depuis Vercel (Storage) est prioritaire : ses adresses sont fournies automatiquement.
+# (quel que soit le préfixe choisi : POSTGRES_, STORAGE_…)
+if [ -z "${POSTGRES_PRISMA_URL:-}" ]; then
+  for v in $(compgen -e | grep -E '_PRISMA_URL$' || true); do
+    POSTGRES_PRISMA_URL="${!v}"; base="${v%_PRISMA_URL}"; nonpool="${base}_URL_NON_POOLING"
+    POSTGRES_URL_NON_POOLING="${!nonpool:-}"; break
+  done
+fi
 if [ -n "${POSTGRES_PRISMA_URL:-}" ]; then
   export DATABASE_URL="$POSTGRES_PRISMA_URL"
   export DIRECT_URL="${POSTGRES_URL_NON_POOLING:-$POSTGRES_PRISMA_URL}"
