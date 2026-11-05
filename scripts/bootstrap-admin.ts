@@ -7,7 +7,7 @@ async function main() {
   if (await db.user.count({ where: { isSuperAdmin: true } })) { console.log("Super Administrateur déjà présent : rien à faire."); return; }
   const username = process.env.CMDPRO_ADMIN_USERNAME?.trim().toLowerCase();
   const password = process.env.CMDPRO_ADMIN_PASSWORD;
-  if (!username || !password) { console.log("Aucun Super Administrateur et variables CMDPRO_ADMIN_* absentes : à créer avec « npm run admin:create »."); return; }
+  if (!username || !password) throw new Error("Aucun Super Administrateur n'existe encore : ajoutez CMDPRO_ADMIN_USERNAME et CMDPRO_ADMIN_PASSWORD (10 caractères minimum, lettres et chiffres) dans Vercel → Settings → Environment Variables, puis relancez le déploiement.");
   const problem = passwordProblem(password);
   if (problem) throw new Error(problem);
   const role = await db.role.findUniqueOrThrow({ where: { code: "SUPER_ADMIN" } });
