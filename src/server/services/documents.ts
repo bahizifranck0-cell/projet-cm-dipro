@@ -1,10 +1,9 @@
 import { createHash, randomBytes } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { DocumentType } from "@prisma/client";
 import { db, type Tx } from "../db";
 import { can, ForbiddenError, type Actor } from "../auth/actor";
-import { STORAGE_DIR } from "../storage";
+import { getFile, putFile } from "../storage";
 import { nextNumber } from "./sequences";
 import { audit } from "./audit";
 
@@ -31,9 +30,7 @@ export async function storeDocument(input: {
   patientId?: string | null; employeeId?: string | null; entityType?: string; entityId?: string; visibleToPatient?: boolean;
 }, tx: Tx = db) {
   const rel = path.posix.join("documents", input.type.toLowerCase(), `${input.number}-${randomBytes(4).toString("hex")}.pdf`);
-  const abs = path.resolve(STORAGE_DIR, rel);
-  await mkdir(path.dirname(abs), { recursive: true });
-  await writeFile(abs, input.pdf);
+  await putFile(rel, input.pdf, "application/pdf");
   const prev = input.entityId ? await tx.document.count({ where: { entityType: input.entityType, entityId: input.entityId, type: input.type } }) : 0;
   return tx.document.create({
     data: {
@@ -53,11 +50,11 @@ export async function readDocumentForStaff(actor: Actor, id: string) {
   const own = d.type === "PAYSLIP" && d.employeeId && d.employeeId === actor.employeeId;
   if (!(can(actor, m, a) || can(actor, "documents", "view") && d.type !== "PAYSLIP" || own)) throw new ForbiddenError();
   await audit(actor, { action: "DOCUMENT_VIEW", module: "documents", entityType: "Document", entityId: d.id });
-  return { doc: d, data: await readFile(path.resolve(STORAGE_DIR, d.storagePath)) };
+  return { doc: d, data: await getFile(d.storagePath) };
 }
 
 export async function readDocumentForPatient(patientId: string, id: string) {
   const d = await db.document.findUnique({ where: { id } });
   if (!d || d.patientId !== patientId || !d.visibleToPatient) return null; // jamais le document d'un autre patient
-  return { doc: d, data: await readFile(path.resolve(STORAGE_DIR, d.storagePath)) };
+  return { doc: d, data: await getFile(d.storagePath) };
 }

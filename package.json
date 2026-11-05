@@ -16,7 +16,8 @@
     "test:db": "prisma migrate deploy && node --test tests/db/*.test.mjs",
     "test": "./scripts/test-services.sh",
     "test:e2e": "./scripts/e2e.sh",
-    "demo:seed": "tsx scripts/seed-demo.ts"
+    "demo:seed": "tsx scripts/seed-demo.ts",
+    "postinstall": "prisma generate"
   },
   "engines": {
     "node": ">=22"

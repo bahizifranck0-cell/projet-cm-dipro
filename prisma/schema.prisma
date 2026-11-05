@@ -1372,3 +1372,12 @@ model Document {
   @@index([patientId, type])
   @@index([entityType, entityId])
 }
+
+// Fichiers privés stockés en base (hébergement cloud sans disque permanent : STORAGE_DRIVER=database)
+model StoredFile {
+  path      String   @id
+  data      Bytes
+  mimeType  String
+  sizeBytes Int
+  createdAt DateTime @default(now())
+}
