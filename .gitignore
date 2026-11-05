@@ -7,3 +7,4 @@ storage/
 coverage/
 *.log
 test-results/
+tsconfig.tsbuildinfo
