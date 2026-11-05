@@ -5,10 +5,21 @@ set -euo pipefail
 # Noms acceptés : ceux du guide (DATABASE_URL / DIRECT_URL) ou ceux de l'intégration Supabase de Vercel.
 export DATABASE_URL="${DATABASE_URL:-${POSTGRES_PRISMA_URL:-}}"
 export DIRECT_URL="${DIRECT_URL:-${POSTGRES_URL_NON_POOLING:-$DATABASE_URL}}"
+# Retire espaces, guillemets et un éventuel « NOM= » collé par erreur dans la valeur
+nettoie() { local v="$1"; v="${v#"${v%%[![:space:]]*}"}"; v="${v%"${v##*[![:space:]]}"}"; v="${v#*_URL=}"; v="${v#[\"\']}"; v="${v%[\"\']}"; printf '%s' "$v"; }
+export DATABASE_URL="$(nettoie "$DATABASE_URL")"
+export DIRECT_URL="$(nettoie "$DIRECT_URL")"
 
 manque=()
 [ -z "$DATABASE_URL" ] && manque+=("DATABASE_URL (Supabase → Connect → ORMs → Prisma)")
 [ -z "${STORAGE_DRIVER:-}" ] && manque+=("STORAGE_DRIVER = database")
+for nom in DATABASE_URL DIRECT_URL; do
+  val="${!nom}"
+  if [ -n "$val" ] && [[ "$val" != postgresql://* && "$val" != postgres://* ]]; then
+    if [[ "$val" == *COLLER_ICI* ]]; then manque+=("$nom : contient encore « COLLER_ICI » — collez l'adresse Supabase")
+    else manque+=("$nom : doit commencer par postgresql:// (recopiez-la depuis Supabase → Connect → ORMs → Prisma)"); fi
+  fi
+done
 if [ ${#manque[@]} -gt 0 ]; then
   echo "✖ Réglages manquants dans Vercel (Settings → Environment Variables) :"
   for m in "${manque[@]}"; do echo "   - $m"; done
