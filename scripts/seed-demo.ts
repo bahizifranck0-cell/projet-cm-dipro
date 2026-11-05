@@ -18,7 +18,7 @@ import * as appts from "../src/server/services/appointments";
 
 async function main() {
   const dbName = new URL(process.env.DATABASE_URL!).pathname.slice(1);
-  if (!dbName.includes("demo") || process.env.CMDPRO_DEMO !== "1") throw new Error(`Refus : base « ${dbName} ». La démo exige une base dont le nom contient « demo » et CMDPRO_DEMO=1.`);
+  if ((!dbName.includes("demo") && process.env.CMDPRO_DEMO_INSTANCE !== "1") || process.env.CMDPRO_DEMO !== "1") throw new Error(`Refus : base « ${dbName} ». La démo exige une base dont le nom contient « demo » et CMDPRO_DEMO=1.`);
   if (await db.user.count({ where: { username: "demo.admin" } })) { console.log("Démo déjà initialisée."); return; }
   await seed(() => {});
   const pw = await hashPassword(DEMO_PASSWORD);

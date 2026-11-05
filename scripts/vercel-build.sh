@@ -42,8 +42,11 @@ fi
 echo "▶ Migrations de la base"
 DATABASE_URL="$DIRECT_URL" npx prisma migrate deploy
 echo "▶ Permissions, rôles et moyen de paiement (sans donnée fictive)"
-DATABASE_URL="$DIRECT_URL" npx tsx scripts/seed.ts
+CMDPRO_DATABASE_URL="$DIRECT_URL" DATABASE_URL="$DIRECT_URL" npx tsx scripts/seed.ts
 echo "▶ Premier Super Administrateur (uniquement s'il n'en existe aucun)"
-DATABASE_URL="$DIRECT_URL" npx tsx scripts/bootstrap-admin.ts
+CMDPRO_DATABASE_URL="$DIRECT_URL" DATABASE_URL="$DIRECT_URL" npx tsx scripts/bootstrap-admin.ts
+if [ "${CMDPRO_DEMO:-}" = "1" ]; then
+  echo "▶ Comptes et données de démonstration"; CMDPRO_DATABASE_URL="$DIRECT_URL" DATABASE_URL="$DIRECT_URL" npx tsx scripts/seed-demo.ts
+fi
 echo "▶ Compilation"
 npx next build
