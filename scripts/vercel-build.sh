@@ -3,8 +3,13 @@
 set -euo pipefail
 
 # Noms acceptés : ceux du guide (DATABASE_URL / DIRECT_URL) ou ceux de l'intégration Supabase de Vercel.
-export DATABASE_URL="${DATABASE_URL:-${POSTGRES_PRISMA_URL:-}}"
-export DIRECT_URL="${DIRECT_URL:-${POSTGRES_URL_NON_POOLING:-$DATABASE_URL}}"
+# Une base connectée depuis Vercel (Storage) est prioritaire : ses adresses sont fournies automatiquement.
+if [ -n "${POSTGRES_PRISMA_URL:-}" ]; then
+  export DATABASE_URL="$POSTGRES_PRISMA_URL"
+  export DIRECT_URL="${POSTGRES_URL_NON_POOLING:-$POSTGRES_PRISMA_URL}"
+fi
+export DATABASE_URL="${DATABASE_URL:-}"
+export DIRECT_URL="${DIRECT_URL:-$DATABASE_URL}"
 # Retire espaces, guillemets et un éventuel « NOM= » collé par erreur dans la valeur
 nettoie() { local v="$1"; v="${v#"${v%%[![:space:]]*}"}"; v="${v%"${v##*[![:space:]]}"}"; v="${v#*_URL=}"; v="${v#[\"\']}"; v="${v%[\"\']}"; printf '%s' "$v"; }
 export DATABASE_URL="$(nettoie "$DATABASE_URL")"
