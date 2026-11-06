@@ -8,3 +8,6 @@ coverage/
 *.log
 test-results/
 tsconfig.tsbuildinfo
+
+# Fichier généré par l'outil de développement Next.js
+AGENTS.md
