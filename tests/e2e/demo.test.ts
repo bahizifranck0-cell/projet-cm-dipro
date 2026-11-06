@@ -18,6 +18,7 @@ test("connexion de démonstration en un clic, données marquées fictives", asyn
   const p = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await p.goto(`${BASE}/connexion`);
   await p.getByRole("heading", { name: "Démonstration — données fictives" }).waitFor();
+  await p.getByText(/Autres profils/).click(); // liste dépliable
   for (const r of ["Médecin dentiste", "Caissier", "Responsable laboratoire"]) await p.getByText(r).waitFor();
   await p.getByRole("button", { name: /Finance \/ Comptabilité/ }).click();
   await p.waitForURL(`${BASE}/`);
