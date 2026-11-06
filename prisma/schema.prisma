@@ -403,7 +403,7 @@ model Specialty {
   active       Boolean  @default(true)
   // Consultations visibles seulement par leur auteur et les médecins de la même spécialité (ex. psychologie)
   confidential Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
 
   departments   SpecialtyDepartment[]
   assignments   DoctorAssignment[]
@@ -950,29 +950,29 @@ model TariffItem {
 
 // Élément facturable sur le compte du patient (prix figé au moment de l'acte).
 model Charge {
-  id            String       @id @default(cuid())
-  patientId     String?
-  visitId       String?
-  admissionId   String?
-  invoiceId     String?
-  source        ChargeSource
-  sourceId      String?
-  tariffItemId  String?
-  productId     String?
-  departmentId  String?
-  description   String
-  quantity      Decimal      @db.Decimal(10, 2)
-  unitPrice     Decimal      @db.Decimal(14, 2)
-  currency      Currency
-  total         Decimal      @db.Decimal(14, 2)
+  id                 String       @id @default(cuid())
+  patientId          String?
+  visitId            String?
+  admissionId        String?
+  invoiceId          String?
+  source             ChargeSource
+  sourceId           String?
+  tariffItemId       String?
+  productId          String?
+  departmentId       String?
+  description        String
+  quantity           Decimal      @db.Decimal(10, 2)
+  unitPrice          Decimal      @db.Decimal(14, 2)
+  currency           Currency
+  total              Decimal      @db.Decimal(14, 2)
   // Montant converti dans la devise de la facture, figé au moment de la facturation
-  amountInInvoiceCcy Decimal? @db.Decimal(14, 2)
-  status        ChargeStatus @default(ACTIVE)
-  createdById   String
-  createdAt     DateTime     @default(now())
-  cancelledById String?
-  cancelledAt   DateTime?
-  cancelReason  String?
+  amountInInvoiceCcy Decimal?     @db.Decimal(14, 2)
+  status             ChargeStatus @default(ACTIVE)
+  createdById        String
+  createdAt          DateTime     @default(now())
+  cancelledById      String?
+  cancelledAt        DateTime?
+  cancelReason       String?
 
   patient       Patient?       @relation(fields: [patientId], references: [id])
   visit         Visit?         @relation(fields: [visitId], references: [id])
@@ -1380,4 +1380,28 @@ model StoredFile {
   mimeType  String
   sizeBytes Int
   createdAt DateTime @default(now())
+}
+
+/// Mode revue : commentaire posé sur un élément précis de l'interface (pour demander une modification).
+model ReviewComment {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  path        String
+  selector    String
+  elementTag  String
+  elementText String
+  elementHtml String
+  context     String
+  viewport    String
+  action      String
+  comment     String
+  status      String   @default("nouveau")
+  reply       String?
+  authorId    String?
+  authorName  String
+  commitSha   String?
+
+  @@index([path])
+  @@index([status])
 }

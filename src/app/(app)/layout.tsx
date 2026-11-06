@@ -10,6 +10,8 @@ import { db } from "@/server/db";
 import { unreadCounts } from "@/server/services/notifications";
 import { isDemo } from "@/lib/demo";
 import { logoutAction } from "./actions";
+import { ReviewOverlay } from "@/components/review-overlay";
+import { reviewEnabled } from "@/server/services/reviews";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const actor = await requireActor();
@@ -31,6 +33,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>
+      {reviewEnabled() && <ReviewOverlay />}
     </ToastProvider>
   );
 }
