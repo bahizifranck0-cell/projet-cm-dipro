@@ -4,6 +4,7 @@ import { db } from "../src/server/db";
 import { hashPassword } from "../src/server/auth/password";
 import { seed } from "./seed";
 import { DEMO_PASSWORD } from "../src/lib/demo";
+import { enrichDemo } from "./demo-plus";
 import { actorFromToken } from "../src/server/services/sessions";
 import { login } from "../src/server/services/auth";
 import * as spec from "../src/server/services/specialties";
@@ -19,7 +20,7 @@ import * as appts from "../src/server/services/appointments";
 async function main() {
   const dbName = new URL(process.env.DATABASE_URL!).pathname.slice(1);
   if ((!dbName.includes("demo") && process.env.CMDPRO_DEMO_INSTANCE !== "1") || process.env.CMDPRO_DEMO !== "1") throw new Error(`Refus : base « ${dbName} ». La démo exige une base dont le nom contient « demo » et CMDPRO_DEMO=1.`);
-  if (await db.user.count({ where: { username: "demo.admin" } })) { console.log("Démo déjà initialisée."); return; }
+  if (await db.user.count({ where: { username: "demo.admin" } })) { console.log("Démo déjà initialisée."); await enrichDemo(); return; }
   await seed(() => {});
   const pw = await hashPassword(DEMO_PASSWORD);
   const deps = Object.fromEntries(await Promise.all(["Médecine générale", "Dentisterie", "Urgences et hospitalisation", "Laboratoire", "Pharmacie", "Administration"].map(async (n) =>
@@ -85,6 +86,7 @@ async function main() {
   // Patient 3 : hospitalisée (maternité), en attente
   await hosp.admit(hp, { patientId: p3.id, type: "MATERNITY", reason: "Surveillance (démo)", bedId: (await db.bed.findFirstOrThrow({ where: { roomId: room.id, code: "1" } })).id });
   await reception.registerArrival(recep, (await mk("Paluku", "Joseph", "M", "1975-07-07", "0990000004")).id, { reason: "Contrôle (démo)" });
+  await enrichDemo();
   console.log("Démonstration prête. Comptes : demo.admin, demo.finance, … — mot de passe :", DEMO_PASSWORD);
 }
 main().then(() => db.$disconnect(), async (e) => { console.error("Erreur :", e.message); await db.$disconnect(); process.exit(1); });
