@@ -48,6 +48,14 @@ test("Phase 13 — notifications et compteurs", async (t) => {
     await l.goto(`${BASE}/notifications`);
     await l.getByText(/Nouvelle demande LAB-/).waitFor();
   });
+  await t.test("la cloche de l'en-tête affiche le nombre de non lues et ouvre les notifications", async () => {
+    await l.goto(`${BASE}/laboratoire`);
+    assert.equal(await l.locator("#cmdpro-sidebar").getByRole("link", { name: "Notifications" }).count(), 0);
+    const bell = l.getByRole("link", { name: /Notifications : 1 non lue/ });
+    await bell.click();
+    await l.waitForURL(`${BASE}/notifications`);
+    await l.getByText(/Nouvelle demande LAB-/).waitFor();
+  });
   await t.test("ouvrir la demande fait baisser le compteur", async () => {
     await l.getByText(/Nouvelle demande LAB-/).click();
     await l.waitForURL(new RegExp(`/laboratoire/${labReqId}`));

@@ -39,8 +39,11 @@ export function navFor(actor: Actor, counts: Record<string, number> = {}): NavIt
   ];
   const badges: Record<string, number> = {};
   for (const [m, n] of Object.entries(counts)) if (BADGE_OF[m]) badges[BADGE_OF[m]] = (badges[BADGE_OF[m]] ?? 0) + n;
-  const total = Object.values(counts).reduce((a, b) => a + b, 0);
-  const list = items.filter((i) => i.show).map(({ show: _s, ...i }) => ({ ...i, badge: badges[i.href] || undefined }));
-  list.splice(1, 0, { href: "/notifications", label: "Notifications", short: "Alertes", icon: "Bell", section: "main", badge: total || undefined });
-  return list;
+  // Les notifications ne sont plus une entrée du menu : elles s'ouvrent depuis la cloche de l'en-tête (voir notificationTotal).
+  return items.filter((i) => i.show).map(({ show: _s, ...i }) => ({ ...i, badge: badges[i.href] || undefined }));
+}
+
+/** Nombre total de notifications non lues : badge de la cloche de l'en-tête. */
+export function notificationTotal(counts: Record<string, number> = {}): number {
+  return Object.values(counts).reduce((a, b) => a + b, 0);
 }
