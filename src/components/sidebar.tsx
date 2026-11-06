@@ -8,7 +8,7 @@ import type { NavItem } from "./nav";
 const ICONS = { LayoutDashboard, Baby, Banknote, BarChart3, Bell, Files, BedDouble, FlaskConical, HandCoins, Landmark, Pill, Tags, CalendarDays, HeartPulse, Stethoscope, ConciergeBell, Contact, Settings, IdCard, Users, ShieldCheck, Building2, ScrollText, Palette } as const;
 const iconOf = (n: string) => ICONS[n as keyof typeof ICONS] ?? LayoutDashboard;
 
-type Props = { items: NavItem[]; user: { name: string; role: string; avatar: React.ReactNode; employeeId?: string | null }; logo: React.ReactNode; logoutAction: () => Promise<void> };
+type Props = { items: NavItem[]; user: { name: string; role: string; avatar: React.ReactNode; employeeId?: string | null }; logo: React.ReactNode; logoutAction: () => Promise<void>; bell?: React.ReactNode };
 
 function Badge({ n, dot }: { n?: number; dot?: boolean }) {
   if (!n) return null;
@@ -16,7 +16,7 @@ function Badge({ n, dot }: { n?: number; dot?: boolean }) {
   return <span className="ml-auto min-w-6 rounded-full bg-danger px-1.5 text-center text-xs font-semibold text-white" aria-label={`${n} élément(s) à traiter`}>{n > 99 ? "99+" : n}</span>;
 }
 
-export function Sidebar({ items, user, logo, logoutAction }: Props) {
+export function Sidebar({ items, user, logo, logoutAction, bell }: Props) {
   const path = usePathname();
   const [collapsed, setCollapsed] = useState(false); // ordinateur : barre repliée
   const [drawer, setDrawer] = useState(false);       // téléphone / tablette : menu complet ouvert
@@ -64,6 +64,7 @@ export function Sidebar({ items, user, logo, logoutAction }: Props) {
       {/* ── Téléphone : barre supérieure ── */}
       <header className="glass-solid sticky top-0 z-30 flex items-center gap-3 rounded-none border-x-0 border-t-0 px-4 py-2 md:hidden">
         {logo}<span className="font-semibold">CMD Pro</span>
+        {bell && <div className="ml-auto">{bell}</div>}
       </header>
 
       {/* ── Téléphone : barre de navigation basse ── */}
