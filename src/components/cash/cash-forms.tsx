@@ -45,8 +45,7 @@ export function CloseSessionButton({ currency, expected, denominations }: { curr
           {denominations.map((d) => (
             <label key={d} className="flex items-center gap-2 rounded-xl border border-white/12 bg-white/5 px-3 py-2">
               <span className="w-20 shrink-0 text-sm font-semibold tabular-nums">{d.toLocaleString("fr-FR")} {currency === "USD" ? "$" : "FC"}</span>
-              <span className="sr-only">Nombre de coupures de {d}</span>
-              <input name={`count_${d}`} inputMode="numeric" pattern="[0-9]*" value={counts[d] ?? ""} placeholder="0"
+              <input name={`count_${d}`} aria-label={`Nombre de coupures de ${d}`} inputMode="numeric" pattern="[0-9]*" value={counts[d] ?? ""} placeholder="0"
                 onChange={(e) => setCounts({ ...counts, [d]: e.target.value.replace(/\D/g, "") })} className="field !py-1.5 min-w-0 flex-1 text-right tabular-nums" />
               <span className="w-24 shrink-0 text-right text-xs text-muted tabular-nums">{fmt(d * (Number(counts[d]) || 0), currency)}</span>
             </label>

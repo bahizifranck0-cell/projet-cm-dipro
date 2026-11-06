@@ -19,12 +19,13 @@ before(async () => {
 after(async () => { await browser?.close(); stopServer(server); await db.$disconnect(); });
 
 const dialog = (p: Page) => p.getByRole("dialog");
+const sessionBox = (p: Page) => p.getByRole("region", { name: "Session de caisse en cours" });
 
 test("Caisse — session complète", async (t) => {
   const c = await openAs(browser, errors, cashier.username);
   await t.test("aucune session : invitation à ouvrir la caisse", async () => {
     await c.goto(`${BASE}/caisse`);
-    await c.getByRole("heading", { name: "Aucune session USD ouverte" }).waitFor();
+    await c.getByText("Aucune session USD ouverte", { exact: true }).last().waitFor();
     assert.deepEqual(await axeViolations(c), []);
   });
   await t.test("ouverture avec un fond de 50 USD", async () => {
@@ -32,8 +33,8 @@ test("Caisse — session complète", async (t) => {
     await dialog(c).getByLabel("Fond de caisse (USD)").fill("50");
     await dialog(c).getByRole("button", { name: "Ouvrir" }).click();
     await c.getByRole("status").filter({ hasText: "Session USD ouverte." }).waitFor();
-    await c.getByText("Solde théorique").waitFor();
-    await c.getByText("50,00 USD").first().waitFor();
+    await sessionBox(c).getByText("Solde théorique").waitFor();
+    await sessionBox(c).getByText("50,00 USD").first().waitFor();
   });
   await t.test("entrée de 20 et sortie de 5 : solde théorique à 65", async () => {
     await c.getByRole("button", { name: "Entrée" }).click();
@@ -49,21 +50,21 @@ test("Caisse — session complète", async (t) => {
     await dialog(c).getByLabel("Méthode").selectOption("mobile");
     await dialog(c).getByRole("button", { name: "Enregistrer" }).click();
     await c.getByText(/Mobile money • Transport/).waitFor();
-    await c.getByText("65,00 USD").waitFor();
+    await sessionBox(c).getByText("65,00 USD", { exact: true }).waitFor();
     assert.deepEqual(await axeViolations(c), []);
   });
   await t.test("billetage : écart calculé en direct, clôture sans écart", async () => {
     await c.getByRole("button", { name: "Clôturer" }).click();
     await dialog(c).getByText("Solde attendu").waitFor();
-    await dialog(c).getByLabel("Nombre de coupures de 50").fill("1");
-    await dialog(c).getByLabel("Nombre de coupures de 10").fill("1");
+    await dialog(c).getByLabel("Nombre de coupures de 50", { exact: true }).fill("1");
+    await dialog(c).getByLabel("Nombre de coupures de 10", { exact: true }).fill("1");
     await dialog(c).getByText("-5,00 USD").waitFor();
-    await dialog(c).getByLabel("Nombre de coupures de 5").fill("1");
+    await dialog(c).getByLabel("Nombre de coupures de 5", { exact: true }).fill("1");
     await dialog(c).getByText("+0,00 USD").waitFor();
     assert.deepEqual(await axeViolations(c), []);
     await dialog(c).getByRole("button", { name: "Clôturer" }).click();
     await c.getByRole("status").filter({ hasText: "Session clôturée (écart +0.00 USD)." }).waitFor();
-    await c.getByRole("heading", { name: "Aucune session USD ouverte" }).waitFor();
+    await c.getByText("Aucune session USD ouverte", { exact: true }).last().waitFor();
   });
   await t.test("historique et rapport", async () => {
     await c.getByRole("link", { name: "Historique des sessions" }).click();
@@ -83,7 +84,7 @@ test("Caisse — session complète", async (t) => {
   await t.test("téléphone : sans débordement horizontal", async () => {
     const m = await openAs(browser, errors, cashier.username, undefined, { width: 390, height: 844 });
     await m.goto(`${BASE}/caisse?devise=CDF`);
-    await m.getByRole("heading", { name: "Aucune session CDF ouverte" }).waitFor();
+    await m.getByText("Aucune session CDF ouverte", { exact: true }).last().waitFor();
     assert.ok((await overflowPx(m)) <= 0);
     assert.deepEqual(await axeViolations(m), []);
   });
