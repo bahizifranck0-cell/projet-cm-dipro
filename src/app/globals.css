@@ -131,3 +131,12 @@ body {
 @media (min-width: 768px) { .pb-bottom-nav { padding-bottom: 2rem; } }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* Module Caisse (transfert PREMIDIS) : apparition des cartes, survol des boutons d'opération. Désactivé si « réduire les animations ». */
+@keyframes cash-rise { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
+.cash-rise { animation: cash-rise 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 55ms); }
+.cash-lift { transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease; }
+.cash-lift:hover { transform: translateY(-2px); }
+.cash-lift:active { transform: translateY(0) scale(0.98); }
+@keyframes cash-pop { 0%, 100% { box-shadow: 0 0 0 0 rgba(140, 192, 255, 0.45); } 50% { box-shadow: 0 0 0 10px rgba(140, 192, 255, 0); } }
+.cash-pop { animation: cash-pop 2.4s ease-in-out infinite; }

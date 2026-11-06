@@ -41,7 +41,7 @@ test("Scénarios A et E — facture, paiement partiel, crédit du DG, dette remb
   const c = await openAs(browser, errors, cashier.username);
   let invoiceUrl = "";
   await t.test("caisse : facture établie (non payée), puis paiement partiel avec reçu", async () => {
-    await c.goto(`${BASE}/caisse`);
+    await c.goto(`${BASE}/caisse?vue=factures`);
     const row = c.getByRole("listitem").filter({ hasText: LAST });
     await row.getByRole("button", { name: "Établir la facture" }).click();
     await c.waitForURL(/caisse\/factures\/c.*creee=1/); invoiceUrl = c.url().split("?")[0];

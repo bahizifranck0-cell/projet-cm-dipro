@@ -9,6 +9,7 @@ import { notify, notifyPermission } from "./notifications";
 import { displayName } from "./patients";
 import { nextNumber } from "./sequences";
 import { opt, parse, req } from "./validation";
+import { openSessionOf, recordInvoiceCash } from "./cash";
 
 const D = (v: Prisma.Decimal.Value) => new Prisma.Decimal(v);
 const r2 = (v: Prisma.Decimal) => v.toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
@@ -118,7 +119,10 @@ export async function recordPayment(actor: Actor, invoiceId: string, raw: { amou
     const balance = inv.total.sub(inv.amountPaid);
     if (inInvoice.gt(balance)) throw new ValidationError(`Le montant dépasse le reste à payer (${fmtMoney(balance, inv.currency)}). Rendez la monnaie au patient.`, "amount");
     const y = new Date().getUTCFullYear();
-    const pay = await tx.payment.create({ data: { number: `REC-${y}-${String(await nextNumber(`REC-${y}`, tx)).padStart(5, "0")}`, invoiceId, amount, currency: raw.currency, exchangeRate: rate, amountInInvoiceCcy: inInvoice, methodCode: method.code, cashierId: actor.userId, note: raw.note?.trim() || null } });
+    const session = await openSessionOf(raw.currency, tx); // Caisse : rattachement à la session ouverte de la devise reçue
+    const pay = await tx.payment.create({ data: { number: `REC-${y}-${String(await nextNumber(`REC-${y}`, tx)).padStart(5, "0")}`, invoiceId, amount, currency: raw.currency, exchangeRate: rate, amountInInvoiceCcy: inInvoice, methodCode: method.code, cashierId: actor.userId, cashSessionId: session?.id ?? null, note: raw.note?.trim() || null } });
+    const isDebt = !!(await tx.debt.findUnique({ where: { invoiceId }, select: { id: true } }));
+    await recordInvoiceCash(tx, { paymentId: pay.id, sessionId: session?.id ?? null, type: "IN", category: isDebt ? "dette" : "facture", amount, currency: raw.currency, method: method.code === "CASH" ? "cash" : "transfer", description: `${isDebt ? "Remboursement de dette" : "Encaissement"} ${pay.number} — facture ${inv.number}`, userId: actor.userId });
     const paid = inv.amountPaid.add(inInvoice);
     await tx.invoice.update({ where: { id: invoiceId }, data: { amountPaid: paid, status: statusFor(inv.total, paid) } });
     await refreshDebt(tx, invoiceId);
@@ -140,7 +144,9 @@ export async function reversePayment(actor: Actor, paymentId: string, reason: st
     if (p.reversedBy) throw new ValidationError("Ce paiement a déjà été extourné.");
     await tx.$queryRaw`SELECT id FROM "Invoice" WHERE id = ${p.invoiceId} FOR UPDATE`;
     const y = new Date().getUTCFullYear();
-    const rev = await tx.payment.create({ data: { number: `EXT-${y}-${String(await nextNumber(`EXT-${y}`, tx)).padStart(5, "0")}`, invoiceId: p.invoiceId, amount: p.amount.neg(), currency: p.currency, exchangeRate: p.exchangeRate, amountInInvoiceCcy: p.amountInInvoiceCcy.neg(), methodCode: p.methodCode, cashierId: actor.userId, reversalOfId: p.id, reversalReason: reason.trim() } });
+    const session = await openSessionOf(p.currency, tx);
+    const rev = await tx.payment.create({ data: { number: `EXT-${y}-${String(await nextNumber(`EXT-${y}`, tx)).padStart(5, "0")}`, invoiceId: p.invoiceId, amount: p.amount.neg(), currency: p.currency, exchangeRate: p.exchangeRate, amountInInvoiceCcy: p.amountInInvoiceCcy.neg(), methodCode: p.methodCode, cashierId: actor.userId, cashSessionId: session?.id ?? null, reversalOfId: p.id, reversalReason: reason.trim() } });
+    await recordInvoiceCash(tx, { paymentId: rev.id, sessionId: session?.id ?? null, type: "OUT", category: "extourne", amount: p.amount, currency: p.currency, method: p.methodCode === "CASH" ? "cash" : "transfer", description: `Extourne ${rev.number} de ${p.number} : ${reason.trim()}`, userId: actor.userId });
     const paid = p.invoice.amountPaid.sub(p.amountInInvoiceCcy);
     await tx.invoice.update({ where: { id: p.invoiceId }, data: { amountPaid: paid, status: statusFor(p.invoice.total, paid) } });
     await refreshDebt(tx, p.invoiceId);

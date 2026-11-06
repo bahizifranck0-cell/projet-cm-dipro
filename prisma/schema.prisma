@@ -403,7 +403,7 @@ model Specialty {
   active       Boolean  @default(true)
   // Consultations visibles seulement par leur auteur et les médecins de la même spécialité (ex. psychologie)
   confidential Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
 
   departments   SpecialtyDepartment[]
   assignments   DoctorAssignment[]
@@ -950,29 +950,29 @@ model TariffItem {
 
 // Élément facturable sur le compte du patient (prix figé au moment de l'acte).
 model Charge {
-  id            String       @id @default(cuid())
-  patientId     String?
-  visitId       String?
-  admissionId   String?
-  invoiceId     String?
-  source        ChargeSource
-  sourceId      String?
-  tariffItemId  String?
-  productId     String?
-  departmentId  String?
-  description   String
-  quantity      Decimal      @db.Decimal(10, 2)
-  unitPrice     Decimal      @db.Decimal(14, 2)
-  currency      Currency
-  total         Decimal      @db.Decimal(14, 2)
+  id                 String       @id @default(cuid())
+  patientId          String?
+  visitId            String?
+  admissionId        String?
+  invoiceId          String?
+  source             ChargeSource
+  sourceId           String?
+  tariffItemId       String?
+  productId          String?
+  departmentId       String?
+  description        String
+  quantity           Decimal      @db.Decimal(10, 2)
+  unitPrice          Decimal      @db.Decimal(14, 2)
+  currency           Currency
+  total              Decimal      @db.Decimal(14, 2)
   // Montant converti dans la devise de la facture, figé au moment de la facturation
-  amountInInvoiceCcy Decimal? @db.Decimal(14, 2)
-  status        ChargeStatus @default(ACTIVE)
-  createdById   String
-  createdAt     DateTime     @default(now())
-  cancelledById String?
-  cancelledAt   DateTime?
-  cancelReason  String?
+  amountInInvoiceCcy Decimal?     @db.Decimal(14, 2)
+  status             ChargeStatus @default(ACTIVE)
+  createdById        String
+  createdAt          DateTime     @default(now())
+  cancelledById      String?
+  cancelledAt        DateTime?
+  cancelReason       String?
 
   patient       Patient?       @relation(fields: [patientId], references: [id])
   visit         Visit?         @relation(fields: [visitId], references: [id])
@@ -1071,6 +1071,7 @@ model Payment {
   @@index([cashierId, receivedAt])
 }
 
+// Session de caisse (module Caisse PREMIDIS) : une seule session ouverte par devise (index partiel SQL).
 model CashSession {
   id             String    @id @default(cuid())
   cashierId      String
@@ -1078,12 +1079,46 @@ model CashSession {
   openedAt       DateTime  @default(now())
   openingFloat   Decimal   @default(0) @db.Decimal(14, 2)
   closedAt       DateTime?
+  closedById     String?
+  totalIn        Decimal?  @db.Decimal(14, 2)
+  totalOut       Decimal?  @db.Decimal(14, 2)
   expectedAmount Decimal?  @db.Decimal(14, 2)
   countedAmount  Decimal?  @db.Decimal(14, 2)
   difference     Decimal?  @db.Decimal(14, 2)
+  denominations  Json?
   notes          String?
 
-  payments Payment[]
+  payments   Payment[]
+  operations CashOperation[]
+
+  @@index([currency, closedAt])
+}
+
+enum CashOpType {
+  IN
+  OUT
+}
+
+// Opération de caisse (entrée / sortie) : ajout seul (trigger SQL).
+// Les encaissements de factures et leurs extournes y sont inscrits automatiquement (paymentId).
+model CashOperation {
+  id          String     @id @default(cuid())
+  number      String     @unique
+  sessionId   String?
+  type        CashOpType
+  category    String
+  amount      Decimal    @db.Decimal(14, 2)
+  currency    Currency
+  method      String     @default("cash")
+  description String?
+  paymentId   String?    @unique
+  createdById String
+  createdAt   DateTime   @default(now())
+
+  session CashSession? @relation(fields: [sessionId], references: [id])
+
+  @@index([sessionId, createdAt])
+  @@index([createdAt])
 }
 
 model CashReconciliation {
